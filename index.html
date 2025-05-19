@@ -2,30 +2,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Hetu's HeartSpace 💖</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hetu's Portal</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <h1>Dear Hetu 💌</h1>
-    <p>Share what you feel today 💭</p>
-    <form id="emotionForm">
-      <label for="emotion">I'm feeling:</label>
-      <select id="emotion" name="emotion" required>
-        <option value="Appreciation">Appreciation 💗</option>
-        <option value="Grievance">Grievance 😔</option>
-        <option value="Sadness">Sadness 😢</option>
-        <option value="Happiness">Happiness 😊</option>
-      </select>
-      <label for="message">Message:</label>
-      <textarea id="message" name="message" rows="5" placeholder="Write from your heart..." required></textarea>
-      <button type="submit">Send with Love 💌</button>
-    </form>
-    <div id="thankYou" class="hidden"></div>
+    <h1>Hello, welcome Hetu 💖<br>How can I help you?</h1>
+    <div class="emotion-options">
+      <div class="box" onclick="selectEmotion('Grievance')">😤 Grievance</div>
+      <div class="box" onclick="selectEmotion('Appreciation')">💐 Appreciation</div>
+      <div class="box" onclick="selectEmotion('Sadness')">😢 Sadness</div>
+      <div class="box" onclick="selectEmotion('Happiness')">😊 Happiness</div>
+    </div>
+
+    <div class="input-section hidden" id="inputSection">
+      <textarea id="message" placeholder="Please describe your thoughts..."></textarea>
+      <button onclick="submitEmotion()">Send with Love 💌</button>
+    </div>
+
+    <div class="thank-you hidden" id="thankYou">
+      <h2>Thank you from Prath 💖</h2>
+      <p id="responseText">Your message has been received.</p>
+      <button onclick="goBack()">Back to Menu</button>
+    </div>
   </div>
-  <div class="hearts"></div>
+
   <script src="script.js"></script>
 </body>
 </html>
