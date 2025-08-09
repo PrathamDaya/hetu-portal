@@ -1,133 +1,51 @@
-/* ========== BASE ========== */
-:root{
-  --accent-1: #d94a6b;
-  --accent-2: #ff80a0;
-  --muted: #7a6a74;
-  --bg1: #fdf6fb;
-  --card: #ffffff;
-  --success: #4CAF50;
-  --shadow: 0 8px 25px rgba(0,0,0,0.08);
-  --radius-lg: 18px;
+/* Custom CSS for aesthetics and animations */
+body {
+    font-family: 'Inter', sans-serif;
 }
 
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial;}
-body{
-  background: linear-gradient(180deg,#fff7fb 0%, #fffaf6 100%);
-  color: #4b3b45;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  display:flex;align-items:center;justify-content:center;padding:20px;
+.font-pacifico {
+    font-family: 'Pacifico', cursive;
 }
 
-/* CENTERED FULL (login) */
-.centered-full{min-height:100vh;display:flex;align-items:center;justify-content:center;width:100%}
-
-/* APP WRAP */
-.app-wrap{width:100%;max-width:980px;margin:0 auto}
-
-/* Header */
-.app-header-info{
-  display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;
-  background:linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.7));
-  padding:10px 14px;border-radius:12px;box-shadow:var(--shadow);position:sticky;top:8px;z-index:5;
+/* Screen and Page transition animation */
+.screen, .page {
+    display: none;
+    animation: fadeIn 0.5s ease-in-out;
 }
-#loggedInUserDisplay{font-weight:600;color:var(--accent-1)}
 
-/* LOGIN BOX */
-.login-box{
-  background:var(--card);padding:30px;border-radius:20px;box-shadow:var(--shadow);width:100%;max-width:420px;text-align:center;
+.screen.active, .page.active {
+    display: block;
 }
-.login-box h1{color:var(--accent-1);margin:0 0 18px;font-size:1.6rem}
-.login-options button{display:block;width:100%;padding:14px;border-radius:12px;border:0;margin-bottom:12px;font-weight:700;cursor:pointer}
-.chikoo-btn{background:linear-gradient(90deg,#ffb3c7,#ff86a8);color:#fff}
-.prath-btn{background:linear-gradient(90deg,#7fd2ff,#5ab9ea);color:#033}
 
-/* HOME */
-.main-header{text-align:center;margin-bottom:18px}
-.main-header h1{color:var(--accent-1);font-size:2.4rem;margin:6px 0}
-.subtitle{color:var(--muted);margin-top:6px}
-
-/* OPTIONS GRID */
-.options-grid{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;padding:12px}
-.option-box{background:var(--card);min-width:200px;max-width:320px;border-radius:16px;padding:18px 14px;display:flex;gap:12px;align-items:center;box-shadow:var(--shadow);cursor:pointer;border:1px solid rgba(217,74,107,0.06);transition:transform .18s ease, box-shadow .18s ease}
-.option-box:hover{transform:translateY(-6px);box-shadow:0 16px 35px rgba(0,0,0,0.12)}
-.option-emoji{font-size:2rem}
-.option-text{font-weight:700;color:var(--accent-1)}
-
-/* BUNNY */
-.bunny-button{background:linear-gradient(90deg,#ffd0da,#ff9eb2);border-radius:16px;padding:18px;display:flex;align-items:center;justify-content:center;border:none;box-shadow:var(--shadow);cursor:pointer}
-.bunny-face{font-size:2.6rem;display:inline-block;transition:transform .6s cubic-bezier(.22,.9,.3,1)}
-.bunny-face.spinning{transform:rotate(360deg)}
-
-/* CONTAINER + CARD */
-.container{background:var(--card);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);width:100%}
-.container header{position:relative;padding-bottom:12px;margin-bottom:8px;border-bottom:1px solid #f2e9ee}
-.container header h1{margin:0;color:var(--accent-1)}
-
-/* NAV BUTTONS */
-.back-to-home-btn, .back-btn { position:absolute; left:16px; top:10px; background:#f6f6f6;border:0;padding:8px 12px;border-radius:10px;cursor:pointer;}
-.back-btn{position:static;margin-top:12px}
-
-/* FEELINGS GRID (AESTHETIC CARDS) */
-.feelings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;padding:14px 0}
-.feeling-card{
-  background:linear-gradient(180deg,rgba(255,255,255,0.98),var(--card));
-  border-radius:14px;padding:18px;text-align:left;border:1px solid rgba(0,0,0,0.04);
-  display:flex;flex-direction:column;gap:8px;align-items:flex-start;transition:transform .18s ease, box-shadow .18s ease;cursor:pointer;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
-.feeling-card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(0,0,0,0.08)}
-.feeling-icon{font-size:1.9rem}
-.feeling-title{font-weight:800;color:var(--accent-1);font-size:1.05rem}
-.feeling-desc{color:#6f5a63;font-size:.9rem}
 
-/* emotion-specific accents */
-.feeling-card.grievance{background:linear-gradient(180deg,#fff2f6,#fff);border:1px solid #ffdbe5}
-.feeling-card.grievance .feeling-title{color:#c51162}
-.feeling-card.appreciate{background:linear-gradient(180deg,#f3fff6,#fff);border:1px solid #e0f7e9}
-.feeling-card.appreciate .feeling-title{color:#2e7d32}
-.feeling-card.sad{background:linear-gradient(180deg,#f2f9ff,#fff);border:1px solid #d8eefc}
-.feeling-card.sad .feeling-title{color:#1565c0}
-.feeling-card.happy{background:linear-gradient(180deg,#fffdf5,#fff);border:1px solid #fff2d1}
-.feeling-card.happy .feeling-title{color:#ff8f00}
+/* Custom styling for the feelings boxes */
+.feeling-box {
+    background-size: 200% 200%;
+    transition: all 0.4s ease-in-out;
+}
+.feeling-box:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    background-position: right center;
+}
+.feeling-box-happy { background-image: linear-gradient(to right, #f7b733, #fc4a1a, #f7b733); }
+.feeling-box-sad { background-image: linear-gradient(to right, #4facfe, #00f2fe, #4facfe); }
+.feeling-box-grievance { background-image: linear-gradient(to right, #ff0844, #ffb199, #ff0844); }
+.feeling-box-appreciate { background-image: linear-gradient(to right, #00c9ff, #92fe9d, #00c9ff); }
 
-/* NOTEBOOK */
-.notebook{background:#fff;border-radius:12px;padding:12px;border:1px solid #f3ebf0}
-.notebook textarea{width:100%;min-height:120px;padding:12px;border-radius:10px;border:1px solid #e6dfe6;font-size:1rem;resize:vertical}
-.notebook-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:10px}
+/* Custom scrollbar for a cleaner look */
+.custom-scrollbar::-webkit-scrollbar { width: 8px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #2d3748; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e53e8f; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #d0267a; }
 
-/* ENTRIES LIST + TABLE */
-.entries-list-container{max-height:420px;overflow:auto;padding:10px;border-radius:12px;border:1px solid #f1e9ef;background:#fff}
-.feelings-table{width:100%;border-collapse:collapse}
-.feelings-table th, .feelings-table td{padding:10px;border-bottom:1px solid #faf0f4;text-align:left}
-.emotion-tag{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700;font-size:.82rem}
-.emotion-tag.grievance{background:#ffcdd2;color:#c51162}
-.emotion-tag.appreciate{background:#c8e6c9;color:#1b5e20}
-.emotion-tag.sad{background:#bbdefb;color:#0d47a1}
-.emotion-tag.happy{background:#ffecb3;color:#ff6f00}
-
-/* CALENDAR */
-.calendar-header{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:12px;background:#fff;border:1px solid #f3e9ef;margin-bottom:12px}
-.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;padding:8px}
-.calendar-day{background:#fff;border-radius:8px;padding:12px;min-height:60px;display:flex;align-items:center;justify-content:center;border:1px solid #f4eaf0;cursor:pointer}
-.calendar-day.empty{background:transparent;border:0;cursor:default}
-.calendar-day.today{background:linear-gradient(90deg,#ff9eb2,#ff80a0);color:#fff;font-weight:700}
-.calendar-day.has-entry{background:#d94a6b;color:#fff;font-weight:700}
-
-/* DARE GAME */
-.dare-display-area{background:linear-gradient(180deg,#fffaf0,#fff8e1);border-radius:12px;padding:18px;text-align:center;border:1px dashed #ffe6a8}
-#dareText{font-weight:700;color:#856404}
-
-/* POPUP & OVERLAY */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:900;display:block}
-.hidden{display:none}
-.popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;padding:18px;border-radius:14px;box-shadow:0 18px 45px rgba(0,0,0,0.25);z-index:1000;min-width:260px;text-align:center}
-.popup .popup-actions{margin-top:12px;display:flex;justify-content:center;gap:10px}
-
-/* SMALL SCREEN ADJUST */
-@media (max-width:520px){
-  .option-text{font-size:.95rem}
-  .main-header h1{font-size:1.5rem}
-  .feeling-title{font-size:1rem}
-  .notebook-actions{flex-direction:column;align-items:stretch}
+/* Spinner for bunny button */
+.spinning { animation: spin 1.5s linear infinite; }
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
