@@ -1,450 +1,450 @@
-/* --------------- MAIN SCRIPT --------------- */
-/*
- * Improved & robust version:
- * - safe guards for missing DOM elements
- * - localStorage fallback for entries if scriptURL not configured
- * - cleaned flow for navigation + emotion cards
- */
+// --- SCRIPT START ---
 
-const scriptURL = ''; // Add your Google Apps Script web app URL here if you want server sync
+const scriptURL = 'https://script.google.com/macros/s/AKfycbxMsH6HVLcv0yGQBKZCdOwdAUi9k_Jv4JeIOotqicQlef0mP_mIADlEVbUuzS8pPsZ27g/exec';
 
-// Keys
-const USER_KEY = 'hetu_app_user';
-const FEELINGS_KEY = 'hetu_local_feelings';
-const DIARY_KEY = 'hetu_local_diary';
+// --- DOM Element References ---
+const loginContainer = document.getElementById('loginContainer');
+const appContainer = document.getElementById('appContainer');
+const loggedInUserDisplay = document.getElementById('loggedInUserDisplay');
+const dynamicUserNameElements = document.querySelectorAll('.dynamicUserName');
+const screens = document.querySelectorAll('.screen');
+const feelingsPages = document.querySelectorAll('#feelingsPortalScreen .page');
+const diaryPages = document.querySelectorAll('#diaryScreen .page');
+const dareTextElement = document.getElementById('dareText');
 
-// App state
+// --- Global State Variables ---
 let currentUser = '';
+const SCRIPT_USER_KEY = 'hetuAppCurrentUser';
 let currentEmotion = '';
 let calendarCurrentDate = new Date();
-let diaryEntries = {}; // keyed by YYYY-MM-DD
-
-// ----- Utility helpers -----
-function el(id){ return document.getElementById(id); }
-function bySel(sel, root=document){ return Array.from((root||document).querySelectorAll(sel)); }
-function show(elm){ if(elm) elm.classList.remove('hidden'); }
-function hide(elm){ if(elm) elm.classList.add('hidden'); }
-function safeText(s){ return (s||'').toString().trim(); }
-function todayKey(date = new Date()){
-  const y = date.getFullYear(), m = String(date.getMonth()+1).padStart(2,'0'), d = String(date.getDate()).padStart(2,'0');
-  return `${y}-${m}-${d}`;
-}
-
-/* ------------- LOGIN -------------- */
-function login(name){
-  if(!name) return;
-  currentUser = name;
-  localStorage.setItem(USER_KEY, currentUser);
-  updateUserDisplay();
-  document.getElementById('loginContainer').style.display = 'none';
-  const app = document.getElementById('appContainer');
-  if(app){ app.style.display = 'block'; app.setAttribute('aria-hidden','false'); }
-  navigateToApp('homeScreen');
-}
-
-function logout(){
-  currentUser = '';
-  localStorage.removeItem(USER_KEY);
-  updateUserDisplay();
-  document.getElementById('loginContainer').style.display = 'flex';
-  const app = document.getElementById('appContainer');
-  if(app){ app.style.display = 'none'; app.setAttribute('aria-hidden','true'); }
-}
-
-function updateUserDisplay(){
-  const disp = el('loggedInUserDisplay');
-  if(disp) disp.textContent = currentUser ? `User: ${currentUser}` : 'User: Not logged in';
-  bySel('.dynamicUserName').forEach(x => x.textContent = currentUser || 'User');
-}
-
-/* ------------- INIT -------------- */
-function checkLoginStatus(){
-  const stored = localStorage.getItem(USER_KEY);
-  if(stored){
-    currentUser = stored;
-    updateUserDisplay();
-    document.getElementById('loginContainer').style.display = 'none';
-    const app = document.getElementById('appContainer');
-    if(app){ app.style.display = 'block'; app.setAttribute('aria-hidden','false'); }
-  } else {
-    document.getElementById('loginContainer').style.display = 'flex';
-    const app = document.getElementById('appContainer');
-    if(app){ app.style.display = 'none'; app.setAttribute('aria-hidden','true'); }
-  }
-}
-
-/* ------------- NAVIGATION ------------- */
-function screensAll(){ return bySel('.screen'); }
-function hideAllScreens(){ screensAll().forEach(s => s.classList.remove('active')); }
-function navigateToApp(screenId){
-  // Require login for app screens
-  if(!currentUser && screenId !== 'homeScreen'){ logout(); return; }
-  hideAllScreens();
-  const target = document.getElementById(screenId);
-  if(target) target.classList.add('active');
-  // Ensure feelings page1 visible state
-  if(screenId === 'feelingsPortalScreen'){
-    showFeelingsMain();
-  } else if(screenId === 'diaryScreen'){
-    loadDiaryEntries().then(() => renderCalendar(calendarCurrentDate));
-  } else if(screenId === 'homeScreen'){
-    // nothing else
-  }
-}
-
-/* ------------- FEELINGS FLOW ------------- */
-function showFeelingsMain(){
-  // show main cards, hide write/view pages
-  const main = document.querySelector('#feelingsPortalScreen .feelings-grid');
-  const page2 = el('feelingsPage2');
-  const view = el('feelingsViewEntriesPage');
-  if(main) main.style.display = 'grid';
-  if(page2) hide(page2);
-  if(view) hide(view);
-  // show container screen if not visible
-  navigateToApp('feelingsPortalScreen');
-}
-
-function navigateToFeelingsPage(pageId, emotion){
-  // hide the cards area
-  const main = document.querySelector('#feelingsPortalScreen .feelings-grid');
-  if(main) main.style.display = 'none';
-
-  const page = document.getElementById(pageId);
-  if(page){
-    // hide other pages
-    bySel('#feelingsPortalScreen .page').forEach(p => p.classList.add('hidden'));
-    page.classList.remove('hidden');
-  }
-  if(emotion) {
-    currentEmotion = emotion;
-    const title = el('feelingsPage2Title');
-    if(title) title.textContent = `You selected: ${emotion} — ${currentUser}, share below.`;
-  }
-}
-
-function submitFeelingsEntry(){
-  if(!currentUser){ alert('Please log in first.'); return; }
-  const msg = safeText(el('feelingsMessage')?.value);
-  if(!currentEmotion){ alert('Please select an emotion first.'); return; }
-  if(!msg){ alert('Please enter your thoughts.'); return; }
-
-  const entry = {
-    id: Date.now().toString(36),
-    timestamp: new Date().toISOString(),
-    emotion: currentEmotion,
-    message: msg,
-    submittedBy: currentUser
-  };
-
-  // If scriptURL provided, attempt server POST, else fallback to local
-  if(scriptURL && scriptURL.trim().length>5){
-    const fd = new FormData();
-    fd.append('formType','feelingsEntry');
-    fd.append('emotion', entry.emotion);
-    fd.append('message', entry.message);
-    fd.append('submittedBy', entry.submittedBy);
-    fetch(scriptURL, {method:'POST', body: fd, mode:'cors'})
-      .then(r => r.json().catch(()=>({status:'ok'})))
-      .then(() => {
-        el('feelingsMessage').value = '';
-        navigateToFeelingsPage('feelingsPage2'); // minimal feedback
-        alert('Feelings saved to server.');
-      }).catch(err=>{
-        console.warn('Server save failed, storing locally.', err);
-        saveFeelingLocal(entry);
-      });
-  } else {
-    saveFeelingLocal(entry);
-  }
-}
-
-function saveFeelingLocal(entry){
-  const arr = JSON.parse(localStorage.getItem(FEELINGS_KEY) || '[]');
-  arr.unshift(entry);
-  localStorage.setItem(FEELINGS_KEY, JSON.stringify(arr));
-  el('feelingsMessage').value = '';
-  alert('Saved locally (offline). Use server URL to sync.');
-  // show view list
-  fetchAndDisplayFeelingsEntries();
-}
-
-async function fetchAndDisplayFeelingsEntries(){
-  if(!currentUser){ alert('Please log in to view entries.'); return; }
-  const list = el('feelingsEntriesList');
-  if(!list) return;
-  list.innerHTML = '<p>Loading entries...</p>';
-
-  if(scriptURL && scriptURL.trim().length>5){
-    try{
-      const resp = await fetch(`${scriptURL}?action=getFeelingsEntries`, {mode:'cors'});
-      const data = await resp.json();
-      if(data && data.status === 'success' && Array.isArray(data.data)){
-        renderFeelingsTable(data.data, list);
-        navigateToFeelingsPage('feelingsViewEntriesPage');
-        return;
-      }
-    } catch(e){
-      console.warn('Server fetch failed - falling back to local.', e);
-    }
-  }
-  // fallback local
-  const local = JSON.parse(localStorage.getItem(FEELINGS_KEY) || '[]');
-  renderFeelingsTable(local, list);
-  navigateToFeelingsPage('feelingsViewEntriesPage');
-}
-
-function renderFeelingsTable(entries, container){
-  if(!container) return;
-  if(!entries || entries.length===0){
-    container.innerHTML = '<p>No feelings recorded yet.</p>';
-    return;
-  }
-  const table = document.createElement('table');
-  table.className = 'feelings-table';
-  const thead = document.createElement('thead');
-  thead.innerHTML = `<tr><th>Date & Time</th><th>By</th><th>Emotion</th><th>Message</th></tr>`;
-  table.appendChild(thead);
-  const tbody = document.createElement('tbody');
-  entries.forEach(e=>{
-    const tr = document.createElement('tr');
-    const dt = new Date(e.timestamp || Date.now()).toLocaleString();
-    const by = e.submittedBy || 'Unknown';
-    const emo = e.emotion || 'N/A';
-    const msg = e.message || '';
-    tr.innerHTML = `<td>${dt}</td><td><strong>${by}</strong></td><td><span class="emotion-tag ${emo.toLowerCase()}">${emo}</span></td><td>${escapeHtml(msg)}</td>`;
-    tbody.appendChild(tr);
-  });
-  table.appendChild(tbody);
-  container.innerHTML = '';
-  container.appendChild(table);
-}
-
-/* ------------- DIARY ------------- */
-async function loadDiaryEntries(){
-  // Attempt server fetch (if configured), else load local
-  diaryEntries = {};
-  if(scriptURL && scriptURL.trim().length>5){
-    try{
-      const resp = await fetch(`${scriptURL}?action=getDiaryEntries`, {mode:'cors'});
-      const data = await resp.json();
-      if(data && data.status === 'success' && Array.isArray(data.data)){
-        data.data.forEach(entry=>{
-          diaryEntries[entry.date] = entry;
-        });
-        return;
-      }
-    } catch(e){
-      console.warn('Diary server fetch failed - using local', e);
-    }
-  }
-  // local fallback
-  const local = JSON.parse(localStorage.getItem(DIARY_KEY) || '{}');
-  diaryEntries = local;
-}
-
-function renderCalendar(date){
-  const grid = el('calendarGrid');
-  const monthYear = el('currentMonthYear');
-  if(!grid || !monthYear) return;
-  grid.innerHTML = '';
-  const month = date.getMonth(), year = date.getFullYear();
-  monthYear.textContent = date.toLocaleString('default',{month:'long',year:'numeric'});
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month+1, 0).getDate();
-
-  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  days.forEach(d=>{
-    const hd = document.createElement('div'); hd.className='calendar-day-header'; hd.textContent = d; grid.appendChild(hd);
-  });
-
-  for(let i=0;i<firstDay;i++){
-    const empty = document.createElement('div'); empty.className='calendar-day empty'; grid.appendChild(empty);
-  }
-
-  const today = new Date();
-  for(let d=1; d<=daysInMonth; d++){
-    const cell = document.createElement('div'); cell.className='calendar-day';
-    cell.textContent = d;
-    const key = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    cell.dataset.date = key;
-    if(key === todayKey(today)) cell.classList.add('today');
-    if(diaryEntries[key]) cell.classList.add('has-entry');
-    cell.addEventListener('click', ()=> {
-      if(diaryEntries[key]) viewDiaryEntry(key);
-      else openDiaryEntry(key);
-    });
-    grid.appendChild(cell);
-  }
-}
-
-function openDiaryEntry(dateString){
-  el('selectedDate').value = dateString;
-  const parts = dateString.split('-');
-  const dateObj = new Date(parts[0], Number(parts[1])-1, parts[2]);
-  el('diaryDateDisplay').textContent = dateObj.toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  el('diaryEntryTitle').textContent = `Diary for ${dateObj.toLocaleDateString(undefined,{month:'long',day:'numeric'})}`;
-  el('diaryThoughts').value = '';
-  navigateToDiaryPage('diaryEntryPage');
-}
-
-function viewDiaryEntry(dateString){
-  const entry = diaryEntries[dateString];
-  if(!entry){ openDiaryEntry(dateString); return; }
-  const parts = dateString.split('-');
-  const dateObj = new Date(parts[0], Number(parts[1])-1, parts[2]);
-  el('diaryDateDisplay').textContent = dateObj.toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  el('diaryEntryTitle').textContent = `Diary for ${dateObj.toLocaleDateString(undefined,{month:'long',day:'numeric'})}`;
-  // show view area by reusing the all entries page (simple)
-  el('allDiaryEntriesList').innerHTML = `<div class="diary-entry-list-item"><h3>${dateObj.toLocaleDateString()}</h3><p class="entry-content">${escapeHtml(entry.thoughts||'')}</p><p class="entry-attribution"><em>${entry.submittedBy || 'Unknown'}</em></p></div>`;
-  navigateToDiaryPage('allDiaryEntriesPage');
-}
-
-function navigateToDiaryPage(pageId){
-  bySel('#diaryScreen .page').forEach(p => p.classList.add('hidden'));
-  const page = el(pageId);
-  if(page) page.classList.remove('hidden');
-}
-
-/* Submit diary entry */
-function submitDiaryEntry(){
-  if(!currentUser){ alert('Please log in first.'); return; }
-  const thoughts = safeText(el('diaryThoughts')?.value);
-  const date = el('selectedDate')?.value;
-  if(!date) { alert('No date selected.'); return; }
-  if(!thoughts){ alert('Please write your thoughts.'); return; }
-  const entry = { date, thoughts, submittedBy: currentUser, timestamp: new Date().toISOString() };
-
-  // server if configured
-  if(scriptURL && scriptURL.trim().length>5){
-    const fd = new FormData();
-    fd.append('formType','diaryEntry');
-    fd.append('date', date);
-    fd.append('thoughts', thoughts);
-    fd.append('submittedBy', currentUser);
-    fetch(scriptURL,{method:'POST', body:fd, mode:'cors'})
-      .then(r => r.json().catch(()=>({status:'ok'})))
-      .then(()=> {
-        loadDiaryEntries().then(()=> renderCalendar(calendarCurrentDate));
-        alert('Saved to server');
-      }).catch(err=>{
-        console.warn('Server save failed, saving local', err);
-        saveDiaryLocal(entry);
-      });
-  } else {
-    saveDiaryLocal(entry);
-  }
-}
-
-function saveDiaryLocal(entry){
-  const store = JSON.parse(localStorage.getItem(DIARY_KEY) || '{}');
-  store[entry.date] = entry;
-  localStorage.setItem(DIARY_KEY, JSON.stringify(store));
-  diaryEntries = store;
-  alert('Diary saved locally.');
-  renderCalendar(calendarCurrentDate);
-  navigateToDiaryPage('diaryCalendarPage');
-}
-
-async function fetchAndDisplayAllDiaryEntries(){
-  await loadDiaryEntries();
-  const list = el('allDiaryEntriesList');
-  list.innerHTML = '';
-  const keys = Object.keys(diaryEntries).sort((a,b)=> b.localeCompare(a));
-  if(!keys.length){ list.innerHTML = '<p>No diary entries yet.</p>'; return; }
-  keys.forEach(k=>{
-    const e = diaryEntries[k];
-    const node = document.createElement('div');
-    node.className = 'diary-entry-list-item';
-    const dt = new Date(k + 'T00:00:00').toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-    node.innerHTML = `<h3>${dt}</h3><p class="entry-content">${escapeHtml(e.thoughts || '')}</p><p class="entry-attribution"><em>${e.submittedBy || 'Unknown'}</em></p>`;
-    list.appendChild(node);
-  });
-  navigateToDiaryPage('allDiaryEntriesPage');
-}
-
-/* ------------- DARE GAME ------------- */
-const coupleDares = [
-  "Give your partner a slow, sensual massage on their neck and shoulders for 5 minutes.",
-  "Whisper three things you find sexiest about your partner into their ear.",
-  "Blindfold your partner and tease them with light touches for 2 minutes. Then, they do it to you.",
-  "Choose a song and give your partner a private slow dance.",
-  "Write a short, steamy compliment on a piece of paper and have your partner read it aloud.",
-  "Choose a spot to kiss your partner slowly and linger for a few seconds.",
-  "Share a secret fantasy you've had about your partner.",
-  "Feed your partner a piece of fruit (like a strawberry) in a playful way.",
-  "Kiss your partner passionately for at least 60 seconds.",
-  "Take turns tracing words of affection on each other's backs with fingertips.",
-  "Take a relaxing shower or bath together, focusing on caring touches.",
-  "Give your partner a gentle, affectionate back rub."
-];
+let diaryEntries = {}; 
 let usedDares = [];
 
-function generateDare(){
-  if(usedDares.length === coupleDares.length) usedDares = [];
-  const avail = coupleDares.filter((_,i)=> !usedDares.includes(i));
-  const idx = Math.floor(Math.random()*avail.length);
-  // find actual index in original
-  let realIndex = coupleDares.indexOf(avail[idx]);
-  if(realIndex === -1) realIndex = 0;
-  usedDares.push(realIndex);
-  const dare = coupleDares[realIndex];
-  const elD = el('dareText');
-  if(elD) elD.textContent = dare;
-}
+// --- Data Arrays ---
+const coupleDares = ["Give your partner a slow, sensual massage.", "Whisper three things you find sexiest about your partner.", "Blindfold your partner and tease them with light touches.", "Choose a song and give your partner a private slow dance.", "Write a steamy compliment and have your partner read it aloud.", "Let your partner slowly remove one item of your clothing.", "Describe your favorite passionate memory together.", "Feed your partner a piece of fruit seductively.", "Kiss passionately for at least 60 seconds.", "Trace words of affection on each other's backs.", "Share a secret fantasy you've had about your partner.", "Let your partner choose a spot on your body to kiss.", "Remove your top and let your partner admire you.", "Maintain eye contact for 2 minutes while caressing hands.", "Give a lingering kiss on their collarbone.", "Tell your partner what you want to do with them tonight.", "Gently bite your partner's earlobe or lip.", "Apply lotion or oil to each other's arms or chest.", "Cuddle and share soft kisses for 5 minutes.", "Blindfold your partner and kiss them in three secret spots.", "Slowly lick honey or chocolate syrup off your partner.", "Recreate your very first kiss.", "Give your partner a sensual foot massage.", "Both remove your shirts and compliment each other.", "Write 'I want you' with lipstick on your partner's body.", "Playfully spank your partner.", "Share a shower or bath together.", "Let your partner choose one item of your clothing to remove.", "Kiss your partner from their lips, down their neck, to their chest.", "Tell your partner a secret intimate desire.", "Blindfold yourself and let your partner guide your hands over their body.", "Take turns giving each other eskimo kisses.", "Whisper your partner's name seductively.", "Communicate only with kisses for 3 minutes.", "Draw a temporary tattoo on your partner.", "Both remove your tops and dance together skin to skin.", "Give your partner a sensual 'once-over' look.", "Tease your partner by almost kissing them several times.", "Read an erotic poem or story to each other.", "Describe your partner's sexiest feature.", "Let your partner pick a dare for you from this list.", "Give your partner a lap dance.", "Role-play as a famous movie star and an adoring fan.", "Take a sexy selfie together.", "Kiss each of your partner's fingertips slowly.", "Dare your partner to make you blush with only words."];
 
-/* ------------- POPUPS ------------- */
-const missYouMessages = [
-  "I love you my chikoo! 🥰",
-  "Sending virtual huggies 🤗 to my darling!",
-  "Sending virtual kissy 😘 to my darling!",
-  "Thinking of you, always! ✨",
-  "You're the best! 💖"
+// --- Personalized "Miss You" Messages ---
+const forChikooMessages = [
+    "Prath is missing his Chikoo a lot right now... 💖",
+    "Prath sends you a thousand virtual huggies and kisses! 🤗😘",
+    "Just a little reminder that Prath is thinking of you. Always. ✨",
+    "Hey my love, Prath can't wait to see you! ❤️",
+    "Prath wants you to know you're the best thing that ever happened to him. 🥰"
+];
+const forPrathMessages = [
+    "Your Chikoo is sending you all her love! 💌",
+    "Chikoo misses her Prath more than words can say. 💕",
+    "Psst... Chikoo is thinking about your handsome face. 😊",
+    "Chikoo sends you a big, warm, cuddly hug! 🤗",
+    "Hey you, Chikoo loves you to the moon and back! 🚀"
 ];
 
-function showMissYouPopup(){
-  const bunny = document.querySelector('.bunny-face');
-  if(bunny) bunny.classList.add('spinning');
-  setTimeout(()=>{
-    if(bunny) bunny.classList.remove('spinning');
-    let message = missYouMessages[Math.floor(Math.random()*missYouMessages.length)];
-    if(currentUser === 'Chikoo' && message.includes('Pratham')) {} // keep if OK
-    if(currentUser === 'Prath' && message.includes('Pratham')) { message = "Chikoo misses you too! ❤️"; }
-    el('missYouMessage').textContent = message;
-    show(el('overlay')); show(el('missYouPopup'));
-  }, 350);
+
+// --- Authentication & Session Management ---
+function login(userName) {
+    currentUser = userName;
+    localStorage.setItem(SCRIPT_USER_KEY, currentUser);
+    updateUserDisplay();
+    loginContainer.style.display = 'none';
+    appContainer.style.display = 'block';
+    navigateToApp('homeScreen');
 }
 
-function closeMissYouPopup(){
-  hide(el('missYouPopup')); hide(el('overlay'));
+function logout() {
+    currentUser = '';
+    localStorage.removeItem(SCRIPT_USER_KEY);
+    appContainer.style.display = 'none';
+    loginContainer.style.display = 'block';
 }
 
-/* ------------- SMALL HELPERS ------------- */
-function escapeHtml(unsafe){
-  if(!unsafe) return '';
-  return String(unsafe)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+function updateUserDisplay() {
+    loggedInUserDisplay.textContent = currentUser ? `User: ${currentUser}` : 'Not logged in';
+    dynamicUserNameElements.forEach(el => { el.textContent = currentUser || 'User'; });
 }
 
-/* ------------- BOOT ------------- */
-document.addEventListener('DOMContentLoaded', ()=>{
-  checkLoginStatus();
+function checkLoginStatus() {
+    const storedUser = localStorage.getItem(SCRIPT_USER_KEY);
+    if (storedUser) {
+        login(storedUser);
+    }
+}
 
-  // hook prev/next month
-  const prev = el('prevMonthBtn'), next = el('nextMonthBtn');
-  if(prev) prev.addEventListener('click', ()=>{
-    calendarCurrentDate.setMonth(calendarCurrentDate.getMonth()-1);
-    loadDiaryEntries().then(()=> renderCalendar(calendarCurrentDate));
-  });
-  if(next) next.addEventListener('click', ()=>{
-    calendarCurrentDate.setMonth(calendarCurrentDate.getMonth()+1);
-    loadDiaryEntries().then(()=> renderCalendar(calendarCurrentDate));
-  });
+// --- Main Navigation ---
+function navigateToApp(screenId) {
+    screens.forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId)?.classList.add('active');
 
-  // ensure the home screen is visible if logged in
-  if(currentUser) navigateToApp('homeScreen');
+    if (screenId === 'feelingsPortalScreen') navigateToFeelingsPage('feelingsPage1');
+    if (screenId === 'diaryScreen') {
+        fetchDiaryEntries().then(() => {
+            renderCalendar(calendarCurrentDate);
+            navigateToDiaryPage('diaryCalendarPage');
+        });
+    }
+}
+
+// --- Feelings Portal Functions ---
+function navigateToFeelingsPage(pageId, emotion = '') {
+    feelingsPages.forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId)?.classList.add('active');
+    if (emotion) currentEmotion = emotion;
+    if (pageId === 'feelingsPage2' && currentEmotion) {
+        document.querySelector('#feelingsPage2 h2').textContent = `You selected: ${currentEmotion}. Share your thoughts.`;
+    }
+}
+
+function submitFeelingsEntry() {
+    const messageInput = document.getElementById('feelingsMessage');
+    const message = messageInput.value.trim();
+    if (!currentUser || !currentEmotion || !message) {
+        showCustomMessage('Please select an emotion and write a message.');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('formType', 'feelingsEntry');
+    formData.append('emotion', currentEmotion);
+    formData.append('message', message);
+    formData.append('submittedBy', currentUser);
+
+    const btn = document.getElementById('submitFeelingsBtn');
+    btn.textContent = 'Submitting...';
+    btn.disabled = true;
+
+    fetch(scriptURL, { method: 'POST', body: formData, mode: 'cors' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'error') throw new Error(data.message);
+            navigateToFeelingsPage('feelingsPage3');
+            messageInput.value = '';
+        })
+        .catch(err => showCustomMessage(`Error: ${err.message}`))
+        .finally(() => {
+            btn.textContent = 'Submit Entry';
+            btn.disabled = false;
+        });
+}
+
+async function fetchAndDisplayFeelingsEntries() {
+    navigateToFeelingsPage('feelingsViewEntriesPage');
+    const listContainer = document.getElementById('feelingsEntriesList');
+    listContainer.innerHTML = '<p class="text-center text-gray-400">Loading entries...</p>';
+
+    try {
+        const response = await fetch(`${scriptURL}?action=getFeelingsEntries`);
+        const serverData = await response.json();
+        if (serverData.status !== 'success') throw new Error(serverData.message || 'Failed to load entries.');
+        
+        listContainer.innerHTML = '';
+        if (!serverData.data || serverData.data.length === 0) {
+            listContainer.innerHTML = '<p class="text-center text-gray-400">No entries yet. Be the first!</p>';
+            return;
+        }
+
+        serverData.data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        serverData.data.forEach(entry => {
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'p-4 mb-4 border border-gray-700 rounded-xl bg-gray-800 shadow-sm';
+            const entryDate = new Date(entry.timestamp).toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            
+            let replyHTML = '';
+            if (entry.repliedBy && entry.replyMessage) {
+                const replyDate = new Date(entry.replyTimestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const replierColor = entry.repliedBy === 'Chikoo' ? 'text-pink-400' : 'text-fuchsia-400';
+                replyHTML = `<div class="mt-3 pt-3 border-t border-gray-700"><p class="text-sm font-bold ${replierColor}">${entry.repliedBy} replied:</p><p class="text-gray-300 text-sm">${entry.replyMessage}</p><p class="text-xs text-gray-500 text-right">${replyDate}</p></div>`;
+            } else {
+                replyHTML = `<div class="text-right mt-2"><button class="bg-green-500 text-white text-xs font-bold py-1 px-3 rounded-full hover:bg-green-600 transition" onclick="showReplyPrompt('feeling', '${entry.timestamp}', \`${entry.message}\`)">Reply 💌</button></div>`;
+            }
+
+            const submitterColor = entry.submittedBy === 'Chikoo' ? 'text-pink-400' : 'text-fuchsia-400';
+            entryDiv.innerHTML = `<div class="flex justify-between items-center mb-2"><span class="font-bold ${submitterColor}">${entry.submittedBy}</span><span class="text-xs text-gray-500">${entryDate}</span></div><p class="text-gray-300 mb-2">${entry.message}</p><span class="inline-block px-3 py-1 text-sm font-semibold text-white rounded-full ${getEmotionColor(entry.emotion)}">${entry.emotion}</span>${replyHTML}`;
+            listContainer.appendChild(entryDiv);
+        });
+    } catch (error) {
+        listContainer.innerHTML = `<p class="text-center text-red-400">Error loading entries: ${error.message}</p>`;
+    }
+}
+
+function getEmotionColor(emotion) {
+    switch(emotion?.toLowerCase()) {
+        case 'happy': return 'bg-yellow-500';
+        case 'sad': return 'bg-blue-500';
+        case 'grievance': return 'bg-red-500';
+        case 'appreciate': return 'bg-green-500';
+        default: return 'bg-gray-500';
+    }
+}
+
+// --- Diary Functions ---
+function navigateToDiaryPage(pageId) {
+    diaryPages.forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId)?.classList.add('active');
+}
+
+async function fetchDiaryEntries() {
+    try {
+        const response = await fetch(`${scriptURL}?action=getDiaryEntries`);
+        const data = await response.json();
+        if (data.status === 'success') {
+            diaryEntries = {}; 
+            if (data.data) data.data.forEach(entry => { diaryEntries[entry.date] = entry; });
+        }
+    } catch (error) {
+        console.error('Failed to fetch diary entries:', error);
+        diaryEntries = {};
+    }
+}
+
+function renderCalendar(date) {
+    const calendarGrid = document.getElementById('calendarGrid');
+    const monthYearDisplay = document.getElementById('currentMonthYear');
+    if (!calendarGrid || !monthYearDisplay) return;
+
+    calendarGrid.innerHTML = '';
+    const month = date.getMonth();
+    const year = date.getFullYear();
+    monthYearDisplay.textContent = `${date.toLocaleString('default', { month: 'long' })} ${year}`;
+
+    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    ['S', 'M', 'T', 'W', 'T', 'F', 'S'].forEach(day => {
+        calendarGrid.innerHTML += `<div class="font-bold text-pink-400 text-sm">${day}</div>`;
+    });
+
+    for (let i = 0; i < firstDayOfMonth; i++) calendarGrid.appendChild(document.createElement('div'));
+
+    const today = new Date();
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dayCell = document.createElement('div');
+        const formattedCellDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        dayCell.dataset.date = formattedCellDate;
+        dayCell.textContent = day;
+        
+        let cellClasses = 'p-2 rounded-full hover:bg-gray-700 cursor-pointer transition-colors flex items-center justify-center aspect-square';
+        if (date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth() && day === today.getDate()) {
+            cellClasses += ' bg-pink-500 text-white font-bold';
+        }
+        if (diaryEntries[formattedCellDate]) {
+            cellClasses += ' border-2 ' + (diaryEntries[formattedCellDate].submittedBy === 'Chikoo' ? 'border-pink-400' : 'border-cyan-400');
+        }
+        dayCell.className = cellClasses;
+        dayCell.onclick = () => diaryEntries[formattedCellDate] ? viewDiaryEntry(formattedCellDate) : openDiaryEntry(formattedCellDate);
+        calendarGrid.appendChild(dayCell);
+    }
+}
+
+function openDiaryEntry(dateString) {
+    document.getElementById('selectedDate').value = dateString;
+    const dateObj = new Date(dateString + 'T00:00:00');
+    document.getElementById('diaryEntryTitle').textContent = `Diary for ${dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`;
+    document.getElementById('diaryThoughts').value = '';
+    navigateToDiaryPage('diaryEntryPage');
+}
+
+function viewDiaryEntry(dateString) {
+    const entry = diaryEntries[dateString];
+    if (!entry) return;
+    const dateObj = new Date(dateString + 'T00:00:00');
+    document.getElementById('viewDiaryDateDisplay').textContent = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    document.getElementById('viewDiaryThoughts').textContent = entry.thoughts;
+    document.getElementById('diaryEntryAttribution').textContent = `— ${entry.submittedBy}`;
+    
+    const replySection = document.getElementById('diaryViewPageReplySection');
+    replySection.innerHTML = '';
+    if (entry.repliedBy && entry.replyMessage) {
+        const replyDate = new Date(entry.replyTimestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const replierColor = entry.repliedBy === 'Chikoo' ? 'text-pink-400' : 'text-fuchsia-400';
+        replySection.innerHTML = `<p class="text-sm font-bold ${replierColor}">${entry.repliedBy} replied:</p><p class="text-gray-300 text-sm">${entry.replyMessage}</p><p class="text-xs text-gray-500 text-right">${replyDate}</p>`;
+    } else {
+        replySection.innerHTML = `<div class="text-center"><button class="bg-green-500 text-white text-sm font-bold py-2 px-4 rounded-full hover:bg-green-600 transition" onclick="showReplyPrompt('diary', '${dateString}', \`${entry.thoughts}\`)">Reply 💌</button></div>`;
+    }
+    navigateToDiaryPage('diaryViewPage');
+}
+
+function submitDiaryEntry() {
+    const thoughts = document.getElementById('diaryThoughts').value.trim();
+    const date = document.getElementById('selectedDate').value;
+    if (!date || !thoughts) { showCustomMessage('Please write your thoughts for the selected date.'); return; }
+
+    const formData = new FormData();
+    formData.append('formType', 'diaryEntry');
+    formData.append('date', date);
+    formData.append('thoughts', thoughts);
+    formData.append('submittedBy', currentUser);
+
+    const btn = document.querySelector('#diaryEntryPage button[onclick="submitDiaryEntry()"]');
+    btn.textContent = 'Saving...';
+    btn.disabled = true;
+
+    fetch(scriptURL, { method: 'POST', body: formData, mode: 'cors' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'error') throw new Error(data.message);
+            return fetchDiaryEntries();
+        })
+        .then(() => {
+            renderCalendar(calendarCurrentDate);
+            navigateToDiaryPage('diaryConfirmationPage');
+        })
+        .catch(err => showCustomMessage(`Error: ${err.message}`))
+        .finally(() => {
+            btn.textContent = 'Save Entry';
+            btn.disabled = false;
+        });
+}
+
+async function fetchAndDisplayAllDiaryEntries() {
+    navigateToDiaryPage('allDiaryEntriesPage');
+    const listContainer = document.getElementById('allDiaryEntriesList');
+    listContainer.innerHTML = '<p class="text-center text-gray-400">Loading entries...</p>';
+
+    try {
+        if (Object.keys(diaryEntries).length === 0) await fetchDiaryEntries();
+        const sortedEntries = Object.values(diaryEntries).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        listContainer.innerHTML = '';
+        if (sortedEntries.length === 0) {
+            listContainer.innerHTML = '<p class="text-center text-gray-400">No diary entries yet.</p>';
+            return;
+        }
+
+        sortedEntries.forEach(entry => {
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'p-4 mb-4 border border-gray-700 rounded-xl bg-gray-800 shadow-sm';
+            const entryDate = new Date(entry.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            let replyHTML = '';
+            if (entry.repliedBy && entry.replyMessage) {
+                 const replyDate = new Date(entry.replyTimestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                 const replierColor = entry.repliedBy === 'Chikoo' ? 'text-pink-400' : 'text-fuchsia-400';
+                 replyHTML = `<div class="mt-3 pt-3 border-t border-gray-700"><p class="text-sm font-bold ${replierColor}">${entry.repliedBy} replied:</p><p class="text-gray-300 text-sm">${entry.replyMessage}</p><p class="text-xs text-gray-500 text-right">${replyDate}</p></div>`;
+            } else {
+                 replyHTML = `<div class="text-right mt-2"><button class="bg-green-500 text-white text-xs font-bold py-1 px-3 rounded-full hover:bg-green-600 transition" onclick="showReplyPrompt('diary', '${entry.date}', \`${entry.thoughts}\`)">Reply 💌</button></div>`;
+            }
+            
+            const submitterColor = entry.submittedBy === 'Chikoo' ? 'text-pink-400' : 'text-cyan-400';
+            entryDiv.innerHTML = `<h3 class="font-bold text-lg ${submitterColor}">${entryDate}</h3><p class="text-sm text-gray-500 mb-2">by ${entry.submittedBy}</p><p class="text-gray-300 whitespace-pre-wrap">${entry.thoughts}</p>${replyHTML}`;
+            listContainer.appendChild(entryDiv);
+        });
+    } catch (error) {
+        listContainer.innerHTML = `<p class="text-center text-red-400">Error loading entries: ${error.message}</p>`;
+    }
+}
+
+// --- Reply Functions ---
+function showReplyPrompt(entryType, entryIdentifier, originalMessage) {
+    const overlay = document.getElementById('customModalOverlay');
+    const modalContent = `
+        <div class="bg-gray-800 p-6 rounded-2xl shadow-2xl text-left max-w-md w-full border border-gray-700">
+            <h3 class="font-bold text-lg mb-2 text-gray-200">Replying to entry:</h3>
+            <p class="text-sm bg-gray-900 p-2 rounded-lg max-h-24 overflow-y-auto custom-scrollbar mb-4 text-gray-400">${originalMessage}</p>
+            <textarea id="replyMessage" class="w-full h-24 p-2 bg-gray-700 text-gray-200 border-2 border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 transition" placeholder="Your reply..."></textarea>
+            <div class="flex justify-end items-center mt-4 gap-4">
+                <button class="bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-xl hover:bg-gray-500 transition" onclick="closeCustomModal()">Cancel</button>
+                <button class="bg-green-500 text-white font-bold py-2 px-4 rounded-xl hover:bg-green-600 transition" onclick="submitReply('${entryType}', '${entryIdentifier}')">Submit Reply</button>
+            </div>
+        </div>
+    `;
+    overlay.innerHTML = modalContent;
+    overlay.classList.remove('hidden');
+    document.getElementById('replyMessage').focus();
+}
+
+async function submitReply(entryType, entryIdentifier) {
+    const replyMessage = document.getElementById('replyMessage').value.trim();
+    if (!replyMessage) { showCustomMessage("Reply cannot be empty."); return; }
+
+    const formData = new FormData();
+    formData.append('formType', 'replyEntry');
+    formData.append('entryType', entryType);
+    formData.append('entryIdentifier', entryIdentifier);
+    formData.append('replyMessage', replyMessage);
+    formData.append('repliedBy', currentUser);
+
+    closeCustomModal();
+    showCustomMessage("Submitting reply...");
+
+    try {
+        const response = await fetch(scriptURL, { method: 'POST', body: formData, mode: 'cors' });
+        const data = await response.json();
+        if (data.status === 'error') throw new Error(data.message);
+        
+        showCustomMessage("Reply submitted successfully!");
+        if (entryType === 'feeling') {
+            fetchAndDisplayFeelingsEntries();
+        } else if (entryType === 'diary') {
+            await fetchDiaryEntries();
+            renderCalendar(calendarCurrentDate);
+            if (document.getElementById('allDiaryEntriesPage').classList.contains('active')) fetchAndDisplayAllDiaryEntries();
+            if (document.getElementById('diaryViewPage').classList.contains('active')) {
+                const viewedDate = document.getElementById('viewDiaryDateDisplay').textContent;
+                if(new Date(entryIdentifier + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) === viewedDate) {
+                    viewDiaryEntry(entryIdentifier);
+                }
+            }
+        }
+    } catch (error) {
+        showCustomMessage(`Error submitting reply: ${error.message}`);
+    }
+}
+
+// --- Dare Game Functions ---
+function generateDare() {
+    if (!currentUser) { showCustomMessage('Please log in to play!'); return; }
+    let availableDares = coupleDares.filter(d => !usedDares.includes(d));
+    if (availableDares.length === 0) {
+        usedDares = [];
+        availableDares = coupleDares;
+        showCustomMessage("You've done all the dares! Resetting for more fun. 😉");
+    }
+    const dare = availableDares[Math.floor(Math.random() * availableDares.length)];
+    usedDares.push(dare);
+    dareTextElement.textContent = dare;
+}
+
+// --- Popups & Modals ---
+function showMissYouPopup() {
+    const bunnyFace = document.querySelector('.bunny-face');
+    bunnyFace.classList.add('spinning');
+    setTimeout(() => {
+        bunnyFace.classList.remove('spinning');
+        let message = "I miss you!";
+        if (currentUser === 'Chikoo') {
+            message = forChikooMessages[Math.floor(Math.random() * forChikooMessages.length)];
+        } else if (currentUser === 'Prath') {
+            message = forPrathMessages[Math.floor(Math.random() * forPrathMessages.length)];
+        }
+        document.getElementById('missYouMessage').textContent = message;
+        document.getElementById('missYouPopup').classList.remove('hidden');
+    }, 1500);
+}
+
+function closeMissYouPopup() {
+    document.getElementById('missYouPopup').classList.add('hidden');
+}
+
+function showCustomMessage(message) {
+    const overlay = document.getElementById('customModalOverlay');
+    overlay.innerHTML = `<div class="bg-gray-800 p-8 rounded-3xl shadow-2xl text-center max-w-sm w-full border border-pink-500/30"><p class="text-lg text-gray-200 mb-6">${message}</p><button class="bg-pink-500 text-white font-bold py-2 px-6 rounded-xl hover:bg-pink-600 transition" onclick="closeCustomModal()">Okay</button></div>`;
+    overlay.classList.remove('hidden');
+}
+
+function closeCustomModal() {
+    const overlay = document.getElementById('customModalOverlay');
+    overlay.classList.add('hidden');
+    overlay.innerHTML = '';
+}
+
+// --- Initialization ---
+document.addEventListener('DOMContentLoaded', () => {
+    checkLoginStatus();
+    document.getElementById('prevMonthBtn')?.addEventListener('click', () => {
+        calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() - 1);
+        renderCalendar(calendarCurrentDate);
+    });
+    document.getElementById('nextMonthBtn')?.addEventListener('click', () => {
+        calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + 1);
+        renderCalendar(calendarCurrentDate);
+    });
 });
