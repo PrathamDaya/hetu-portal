@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>For my Hetu</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- LOGIN -->
+  <div id="loginContainer" class="centered-full">
+    <div class="login-box">
+      <h1>Welcome! Who are you?</h1>
+      <div class="login-options">
+        <button class="chikoo-btn" onclick="login('Chikoo')">I am Chikoo 🐰</button>
+        <button class="prath-btn" onclick="login('Prath')">I am Prath 🐼</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP CONTAINER -->
+  <div id="appContainer" class="app-wrap" aria-hidden="true">
+    <div class="app-header-info">
+      <div id="loggedInUserDisplay">User: Not logged in</div>
+      <div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <!-- HOME -->
+    <section id="homeScreen" class="screen active">
+      <header class="main-header">
+        <h1>For my Hetu</h1>
+        <p class="subtitle">Hello, welcome Hetu — how can I help you?</p>
+      </header>
+
+      <main class="options-grid">
+        <div class="option-box main-option" onclick="navigateToApp('feelingsPortalScreen')">
+          <div class="option-emoji">💖</div>
+          <div class="option-text">Hetu's Feelings Portal</div>
+        </div>
+
+        <div class="option-box main-option" onclick="navigateToApp('diaryScreen')">
+          <div class="option-emoji">📅</div>
+          <div class="option-text">Hetu's Diary</div>
+        </div>
+
+        <div class="option-box main-option" onclick="navigateToApp('dareGameScreen')">
+          <div class="option-emoji">🎲</div>
+          <div class="option-text">Couple's Dare Game</div>
+        </div>
+
+        <button class="bunny-button" aria-label="Miss you" onclick="showMissYouPopup()">
+          <span class="bunny-face">🐰</span>
+        </button>
+      </main>
+
+      <footer class="main-footer">
+        <p>&copy; 2025 For Hetu with Love</p>
+      </footer>
+    </section>
+
+    <!-- FEELINGS PORTAL -->
+    <section id="feelingsPortalScreen" class="screen">
+      <div class="container">
+        <header>
+          <button class="back-to-home-btn" onclick="navigateToApp('homeScreen')">🏠 Home</button>
+          <h1>Hi <span class="dynamicUserName">User</span> — how are you feeling?</h1>
+        </header>
+
+        <main class="feelings-grid">
+          <!-- Aesthetic cards for emotions -->
+          <button class="feeling-card grievance" onclick="navigateToFeelingsPage('feelingsPage2','Grievance')">
+            <div class="feeling-icon">😡</div>
+            <div class="feeling-title">Grievance</div>
+            <div class="feeling-desc">Something bothering you?</div>
+          </button>
+
+          <button class="feeling-card appreciate" onclick="navigateToFeelingsPage('feelingsPage2','Appreciate')">
+            <div class="feeling-icon">🌷</div>
+            <div class="feeling-title">Appreciate</div>
+            <div class="feeling-desc">Share some love 💖</div>
+          </button>
+
+          <button class="feeling-card sad" onclick="navigateToFeelingsPage('feelingsPage2','Sad')">
+            <div class="feeling-icon">😢</div>
+            <div class="feeling-title">Sad</div>
+            <div class="feeling-desc">Need a shoulder?</div>
+          </button>
+
+          <button class="feeling-card happy" onclick="navigateToFeelingsPage('feelingsPage2','Happy')">
+            <div class="feeling-icon">😊</div>
+            <div class="feeling-title">Happy</div>
+            <div class="feeling-desc">Share your joy ✨</div>
+          </button>
+        </main>
+
+        <section id="feelingsPage2" class="page hidden">
+          <h2 id="feelingsPage2Title">Write your thought</h2>
+          <div class="notebook">
+            <textarea id="feelingsMessage" placeholder="Write your thoughts here..."></textarea>
+            <div class="notebook-actions">
+              <button id="submitFeelingsBtn" onclick="submitFeelingsEntry()">Submit Entry</button>
+              <button class="back-btn" onclick="navigateToFeelingsPage('feelingsPage1')">Back</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="feelingsViewEntriesPage" class="page hidden">
+          <h2>Feelings Entries</h2>
+          <div id="feelingsEntriesList" class="entries-list-container">
+            <p>Loading entries...</p>
+          </div>
+          <div class="notebook-actions">
+            <button onclick="navigateToFeelingsPage('feelingsPage1')">Back to Feelings</button>
+          </div>
+        </section>
+
+        <footer class="portal-footer"><p>&copy; 2025 For Hetu with Love</p></footer>
+      </div>
+    </section>
+
+    <!-- DIARY -->
+    <section id="diaryScreen" class="screen">
+      <div class="container">
+        <header>
+          <button class="back-to-home-btn" onclick="navigateToApp('homeScreen')">🏠 Home</button>
+          <h1><span class="dynamicUserName">User</span>'s Diary</h1>
+        </header>
+
+        <main>
+          <section id="diaryCalendarPage" class="page active">
+            <div class="calendar-header">
+              <button id="prevMonthBtn">←</button>
+              <h2 id="currentMonthYear"></h2>
+              <button id="nextMonthBtn">→</button>
+            </div>
+            <div id="calendarGrid" class="calendar-grid"></div>
+            <div class="diary-actions">
+              <button onclick="fetchAndDisplayAllDiaryEntries()">View All Entries</button>
+            </div>
+          </section>
+
+          <section id="diaryEntryPage" class="page hidden">
+            <h2 id="diaryEntryTitle"></h2>
+            <p class="date-display">Date: <span id="diaryDateDisplay"></span></p>
+            <div class="notebook">
+              <textarea id="diaryThoughts" placeholder="Write your diary entry here..."></textarea>
+              <input type="hidden" id="selectedDate" />
+              <div class="notebook-actions">
+                <button onclick="submitDiaryEntry()">Save Entry</button>
+                <button class="back-btn" onclick="navigateToDiaryPage('diaryCalendarPage')">Back to Calendar</button>
+              </div>
+            </div>
+          </section>
+
+          <section id="allDiaryEntriesPage" class="page hidden">
+            <h2>All Diary Entries</h2>
+            <div id="allDiaryEntriesList" class="entries-list-container">
+              <p>Loading entries...</p>
+            </div>
+            <div class="notebook-actions">
+              <button onclick="navigateToDiaryPage('diaryCalendarPage')">Back to Calendar</button>
+            </div>
+          </section>
+        </main>
+
+        <footer class="portal-footer"><p>&copy; 2025 For Hetu with Love</p></footer>
+      </div>
+    </section>
+
+    <!-- DARE GAME -->
+    <section id="dareGameScreen" class="screen">
+      <div class="container">
+        <header>
+          <button class="back-to-home-btn" onclick="navigateToApp('homeScreen')">🏠 Home</button>
+          <h1>Couple's Dare Game</h1>
+        </header>
+
+        <main>
+          <div class="dare-display-area">
+            <p id="dareText">Click the button below to get your first dare!</p>
+          </div>
+          <div class="dare-actions">
+            <button id="nextDareBtn" onclick="generateDare()">Next Dare 🔥</button>
+            <button class="back-btn" onclick="navigateToApp('homeScreen')">Back</button>
+          </div>
+        </main>
+
+        <footer class="portal-footer"><p>&copy; 2025 For Hetu with Love</p></footer>
+      </div>
+    </section>
+  </div>
+
+  <!-- Miss you popup + overlay -->
+  <div id="overlay" class="overlay hidden"></div>
+  <div id="missYouPopup" class="popup hidden" role="dialog" aria-modal="true">
+    <p id="missYouMessage"></p>
+    <div class="popup-actions">
+      <button onclick="closeMissYouPopup()">Okay ❤️</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+</body>
+</html>
