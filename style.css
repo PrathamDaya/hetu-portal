@@ -1144,78 +1144,111 @@ button:disabled {
 
 
 
-/* ==== DARK THEME OVERRIDE ==== */
+/* ==== DARK + PINK THEME ==== */
 body {
     background: #0a0a0a !important;
-    color: #f5f5f5 !important;
+    color: #ffe6f0 !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.container, .notebook, .calendar-header, .calendar-grid, .entries-list-container {
+/* General container styling */
+.container, .notebook, .calendar-header, .calendar-grid, .entries-list-container, .option-box, .bunny-button {
     background: #1a1a1a !important;
-    border-color: #333 !important;
-    color: #f5f5f5 !important;
-}
-
-h1, h2, h3, p, span, label {
-    color: #f5f5f5 !important;
-}
-
-/* ==== Neon Glow Emotion Boxes ==== */
-#feelingsPortalScreen .option-box.grievance {
-    background-color: transparent !important;
-    color: #ff4d6d !important;
-    border: 2px solid #ff4d6d !important;
-    box-shadow: 0 0 10px #ff4d6d, 0 0 20px #ff4d6d66 !important;
-}
-#feelingsPortalScreen .option-box.grievance:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px #ff4d6d, 0 0 30px #ff4d6d99;
-}
-
-#feelingsPortalScreen .option-box.appreciate {
-    background-color: transparent !important;
-    color: #00ff99 !important;
-    border: 2px solid #00ff99 !important;
-    box-shadow: 0 0 10px #00ff99, 0 0 20px #00ff9966 !important;
-}
-#feelingsPortalScreen .option-box.appreciate:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px #00ff99, 0 0 30px #00ff9999;
-}
-
-#feelingsPortalScreen .option-box.sad {
-    background-color: transparent !important;
-    color: #00ccff !important;
-    border: 2px solid #00ccff !important;
-    box-shadow: 0 0 10px #00ccff, 0 0 20px #00ccff66 !important;
-}
-#feelingsPortalScreen .option-box.sad:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px #00ccff, 0 0 30px #00ccff99;
-}
-
-#feelingsPortalScreen .option-box.happy {
-    background-color: transparent !important;
-    color: #ffff66 !important;
-    border: 2px solid #ffff66 !important;
-    box-shadow: 0 0 10px #ffff66, 0 0 20px #ffff6666 !important;
-}
-#feelingsPortalScreen .option-box.happy:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px #ffff66, 0 0 30px #ffff6699;
-}
-
-/* Smooth animation for all emotion boxes */
-#feelingsPortalScreen .option-box {
+    border: 2px solid #ff66a3 !important;
+    color: #ffe6f0 !important;
+    border-radius: 20px !important;
+    box-shadow: 0 0 15px rgba(255, 102, 163, 0.5);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* General buttons in dark theme */
+/* On hover, subtle lift and glow */
+.option-box:hover, .bunny-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 102, 163, 0.8);
+}
+
+/* Main headers */
+h1, h2, h3, p, span, label {
+    color: #ffe6f0 !important;
+}
+
+/* Dashboard boxes styling */
+.option-box.main-option {
+    font-weight: bold;
+    background: linear-gradient(145deg, #1a1a1a, #2a2a2a) !important;
+    border: 2px solid #ff66a3 !important;
+    text-align: center;
+    padding: 25px !important;
+}
+
+/* Bunny button */
+.bunny-button {
+    background: linear-gradient(145deg, #ff66a3, #ff3385) !important;
+    color: white !important;
+    font-size: 1.4em;
+}
+
+/* Feelings portal emotion boxes */
+#feelingsPortalScreen .option-box {
+    min-height: 120px;
+    padding: 25px !important;
+    font-size: 1.3em;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Individual neon glow colors */
+#feelingsPortalScreen .option-box.grievance {
+    color: #ff4d6d !important;
+    border-color: #ff4d6d !important;
+    box-shadow: 0 0 15px #ff4d6d66;
+}
+#feelingsPortalScreen .option-box.appreciate {
+    color: #00ff99 !important;
+    border-color: #00ff99 !important;
+    box-shadow: 0 0 15px #00ff9966;
+}
+#feelingsPortalScreen .option-box.sad {
+    color: #00ccff !important;
+    border-color: #00ccff !important;
+    box-shadow: 0 0 15px #00ccff66;
+}
+#feelingsPortalScreen .option-box.happy {
+    color: #ffff66 !important;
+    border-color: #ffff66 !important;
+    box-shadow: 0 0 15px #ffff6666;
+}
+
+/* Buttons general */
 button {
-    background: linear-gradient(45deg, #ff4d6d, #d94a6b) !important;
+    background: linear-gradient(45deg, #ff66a3, #ff3385) !important;
     color: white !important;
     border: none !important;
+    border-radius: 25px !important;
+    padding: 12px 20px !important;
+    font-weight: bold !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 button:hover {
     transform: scale(1.03);
+    box-shadow: 0 0 15px rgba(255, 102, 163, 0.8);
+}
+
+/* Calendar */
+.calendar-day {
+    background: #2a2a2a !important;
+    border: 1px solid #ff66a3 !important;
+    color: #ffe6f0 !important;
+}
+.calendar-day.today {
+    background: linear-gradient(45deg, #ff66a3, #ff3385) !important;
+    color: white !important;
+}
+
+/* Fix overlapping by adding spacing */
+.options-grid, #feelingsPortalScreen .page {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
 }
