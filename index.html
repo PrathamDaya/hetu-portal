@@ -1,241 +1,280 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>For my Hetu</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        /* Login Screen Styles - Already in style.css */
-        /* App Header Info Styles - Already in style.css */
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#1a1a1a" />
+  <title>For my Hetu — Dark Pink Theme</title>
+
+  <!-- Link to CSS (replace with your path if different) -->
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* small fixes to ensure no flash of white on load */
+    html,body { background: #0a0a0a; }
+  </style>
 </head>
 <body>
-    <div id="loginContainer">
-        <div class="login-box">
-            <h1>Welcome! Who are you?</h1>
-            <div class="login-options">
-                <button class="chikoo-btn" onclick="login('Chikoo')">I am Chikoo 🐰</button>
-                <button class="prath-btn" onclick="login('Prath')">I am Prath 🐼</button>
-            </div>
-        </div>
+  <!-- LOGIN -->
+  <div id="loginContainer" aria-hidden="false">
+    <div class="login-box" role="dialog" aria-labelledby="loginTitle">
+      <h1 id="loginTitle">Welcome — Who are you?</h1>
+      <div class="login-options">
+        <button class="chikoo-btn" onclick="login('Chikoo')" aria-label="Login as Chikoo">I am Chikoo 🐰</button>
+        <button class="prath-btn" onclick="login('Prath')" aria-label="Login as Prath">I am Prath 🐼</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="appContainer" aria-hidden="true">
+    <div class="app-header-info" role="banner">
+      <span id="loggedInUserDisplay">User: Not logged in</span>
+      <div class="header-actions">
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
     </div>
 
-    <div id="appContainer">
-        <div class="app-header-info">
-            <span id="loggedInUserDisplay">User: Not logged in</span>
-            <button class="logout-btn" onclick="logout()">Logout</button>
+    <!-- HOME -->
+    <section id="homeScreen" class="screen active" aria-labelledby="homeTitle">
+      <header class="main-header">
+        <h1 id="homeTitle">For my Hetu</h1>
+      </header>
+
+      <main class="options-grid" role="main">
+        <div class="option-box main-option" onclick="navigateToApp('feelingsPortalScreen')" role="button" tabindex="0">
+          <div class="option-inner">
+            <div class="option-icon">💖</div>
+            <div class="option-title">Hetu's Feelings Portal</div>
+          </div>
         </div>
 
-        <section id="homeScreen" class="screen active">
-            <header class="main-header">
-                <h1>For my Hetu</h1>
-            </header>
-            <main class="options-grid">
-                <div class="option-box main-option" onclick="navigateToApp('feelingsPortalScreen')">
-                    💖 Hetu's Feelings Portal 💖
-                </div>
-                <div class="option-box main-option" onclick="navigateToApp('diaryScreen')">
-                    📅 Hetu's Diary 📅
-                </div>
-                <div class="option-box main-option" onclick="navigateToApp('dareGameScreen')">
-                    😈 Couple's Dare Game 😈
-                </div>
-                <div class="option-box bunny-button" onclick="showMissYouPopup()">
-                    <span class="bunny-face">🐰</span>
-                </div>
-            </main>
-            <footer class="main-footer">
-                <p>&copy; 2025 For Hetu with Love</p>
-            </footer>
-        </section>
-
-        <section id="feelingsPortalScreen" class="screen">
-            <div class="container">
-                <header>
-                    <button class="back-to-home-btn" onclick="navigateToApp('homeScreen')">🏠 Home</button>
-                    <h1>Hi <span class="dynamicUserName">User</span>, how can I help you?</h1>
-                </header>
-                <main>
-                    <section id="feelingsPage1" class="page active">
-                        <div class="option-box grievance" onclick="navigateToFeelingsPage('feelingsPage2', 'Grievance')">Grievance</div>
-                        <div class="option-box appreciate" onclick="navigateToFeelingsPage('feelingsPage2', 'Appreciate')">Appreciate</div>
-                        <div class="option-box sad" onclick="navigateToFeelingsPage('feelingsPage2', 'Sad')">Sad</div>
-                        <div class="option-box happy" onclick="navigateToFeelingsPage('feelingsPage2', 'Happy')">Happy</div>
-                        <button class="view-all-btn" onclick="fetchAndDisplayFeelingsEntries()">View All Entries</button>
-                    </section>
-
-                    <section id="feelingsPage2" class="page">
-                        <h2></h2>
-                        <div class="notebook">
-                            <textarea id="feelingsMessage" placeholder="Write your thoughts here..."></textarea>
-                            <button id="submitFeelingsBtn" onclick="submitFeelingsEntry()">Submit Entry</button>
-                        </div>
-                        <button class="back-btn" onclick="navigateToFeelingsPage('feelingsPage1')">Back</button>
-                    </section>
-
-                    <section id="feelingsPage3" class="page">
-                        <div class="confirmation-box">
-                            <div id="feelings-animation-container">
-                                <span id="feelings-mail-icon">📧</span>
-                                <div id="feelings-message-box"></div>
-                            </div>
-                            <p id="feelings-thank-you-message">Thank you for sharing! Your thoughts have been recorded.</p>
-                            <button class="main-home-btn" onclick="navigateToApp('homeScreen')">🏠 Main Home</button>
-                            <button class="back-to-feelings-btn" onclick="navigateToFeelingsPage('feelingsPage1')">New Entry</button>
-                        </div>
-                    </section>
-
-                    <section id="feelingsViewEntriesPage" class="page">
-                        <h2>Feelings Entries</h2>
-                        <div id="feelingsEntriesList" class="entries-list-container">
-                            <p>Loading entries...</p>
-                        </div>
-                        <button onclick="navigateToFeelingsPage('feelingsPage1')">Back to Feelings Portal</button>
-                    </section>
-                </main>
-                <footer class="portal-footer">
-                    <p>&copy; 2025 For Hetu with Love</p>
-                </footer>
-            </div>
-        </section>
-
-        <section id="diaryScreen" class="screen">
-            <div class="container">
-                <header>
-                    <button class="back-to-home-btn" onclick="navigateToApp('homeScreen')">🏠 Home</button>
-                    <h1><span class="dynamicUserName">User</span>'s Diary</h1>
-                </header>
-                <main>
-                    <section id="diaryCalendarPage" class="page active">
-                        <div class="calendar-header">
-                            <button id="prevMonthBtn">←</button>
-                            <h2 id="currentMonthYear"></h2>
-                            <button id="nextMonthBtn">→</button>
-                        </div>
-                        <div id="calendarGrid" class="calendar-grid">
-                        </div>
-                        <div class="diary-actions">
-                            <button onclick="fetchAndDisplayAllDiaryEntries()">View All Entries</button>
-                        </div>
-                    </section>
-
-                    <section id="diaryEntryPage" class="page">
-                        <h2 id="diaryEntryTitle"></h2>
-                        <p class="date-display">Date: <span id="diaryDateDisplay"></span></p>
-                        <div class="notebook">
-                            <textarea id="diaryThoughts" placeholder="Write your diary entry here..."></textarea>
-                            <input type="hidden" id="selectedDate">
-                            <button onclick="submitDiaryEntry()">Save Entry</button>
-                        </div>
-                        <button class="back-btn" onclick="navigateToDiaryPage('diaryCalendarPage')">Back to Calendar</button>
-                    </section>
-
-                    <section id="diaryConfirmationPage" class="page">
-                        <div class="confirmation-box">
-                            <p>Your diary entry has been saved!</p>
-                            <button class="main-home-btn" onclick="navigateToApp('homeScreen')">🏠 Main Home</button>
-                            <button class="back-to-diary-btn" onclick="navigateToDiaryPage('diaryCalendarPage')">Back to Diary</button>
-                        </div>
-                    </section>
-
-                    <section id="diaryViewPage" class="page">
-                        <h2 class="date-display">Date: <span id="viewDiaryDateDisplay"></span></h2>
-                        <div class="notebook view-only">
-                            <p id="viewDiaryThoughts"></p>
-                             <p id="diaryEntryAttribution" class="entry-attribution"></p>
-                        </div>
-                        <div id="diaryViewPageReplySection" class="reply-section-container">
-                            </div>
-                        <button class="back-btn" onclick="navigateToDiaryPage('diaryCalendarPage')">Back to Calendar</button>
-                    </section>
-
-                    <section id="allDiaryEntriesPage" class="page">
-                        <h2>All Diary Entries</h2>
-                        <div id="allDiaryEntriesList" class="entries-list-container">
-                            <p>Loading entries...</p>
-                        </div>
-                        <button onclick="navigateToDiaryPage('diaryCalendarPage')">Back to Calendar</button>
-                    </section>
-
-                </main>
-                 <footer class="portal-footer">
-                    <p>&copy; 2025 For Hetu with Love</p>
-                </footer>
-            </div>
-        </section>
-
-        <section id="dareGameScreen" class="screen">
-            <div class="container">
-                <header>
-                    <button class="back-to-home-btn" onclick="navigateToApp('homeScreen')">🏠 Home</button>
-                    <h1>Couple's Dare Game</h1>
-                </header>
-                <main>
-                    <div class="dare-display-area">
-                        <p id="dareText">Click the button below to get your first dare!</p>
-                    </div>
-                    <div class="dare-actions">
-                        <button id="nextDareBtn" onclick="generateDare()">Next Dare 🔥</button>
-                    </div>
-                </main>
-                <footer class="portal-footer">
-                    <p>&copy; 2025 For Hetu with Love</p>
-                </footer>
-            </div>
-        </section>
+        <div class="option-box main-option" onclick="navigateToApp('diaryScreen')" role="button" tabindex="0">
+          <div class="option-inner">
+            <div class="option-icon">📅</div>
+            <div class="option-title">Hetu's Diary</div>
+          </div>
         </div>
-    
-    <div id="missYouPopup">
-        <p id="missYouMessage"></p> <button onclick="closeMissYouPopup()">Okay ❤️</button>
-    </div>
 
-    <div id="overlay"></div>
+        <div class="option-box main-option" onclick="navigateToApp('dareGameScreen')" role="button" tabindex="0">
+          <div class="option-inner">
+            <div class="option-icon">😈</div>
+            <div class="option-title">Couple's Dare Game</div>
+          </div>
+        </div>
 
-    <script>
-        // Inline JS from original file
-        console.log('HTML JavaScript is working!');
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, checking for external script functions...');
-            // The main script.js will handle initialization now
-        });
+        <div class="bunny-button" onclick="showMissYouPopup()" role="button" tabindex="0" aria-label="Miss you popup">
+          <span class="bunny-face">🐰</span>
+        </div>
+      </main>
 
-        const missYouMessages = [
-            "I love you my chikoo! 🥰",
-            "Sending virtual huggies 🤗 to my darling!",
-            "Sending virtual kissy 😘 to my darling!",
-            "Pratham misses you too! ❤️", 
-            "Thinking of you, always! ✨",
-            "You're the best! 💖"
-        ];
+      <footer class="main-footer">
+        <p>&copy; 2025 For Hetu with Love</p>
+      </footer>
+    </section>
 
-        function showMissYouPopup() {
-            const bunnyFace = document.querySelector('.bunny-button .bunny-face');
-            bunnyFace.classList.add('spinning'); 
+    <!-- FEELINGS -->
+    <section id="feelingsPortalScreen" class="screen" aria-labelledby="feelingsTitle" hidden>
+      <div class="container">
+        <header>
+          <button class="back-to-home-btn" onclick="navigateToApp('homeScreen')" aria-label="Back to Home">🏠 Home</button>
+          <h1 id="feelingsTitle">Hi <span class="dynamicUserName">User</span>, how can I help you?</h1>
+        </header>
 
-            setTimeout(() => {
-                bunnyFace.classList.remove('spinning');
-                
-                let message = missYouMessages[Math.floor(Math.random() * missYouMessages.length)];
-                
-                if (typeof currentUser !== 'undefined' && currentUser === 'Chikoo' && message === "Pratham misses you too! ❤️") {
-                    // message remains as is
-                } else if (typeof currentUser !== 'undefined' && currentUser === 'Prath' && message === "Pratham misses you too! ❤️") {
-                    message = "Chikoo misses you too! ❤️"; 
-                }
+        <main>
+          <!-- Page 1: emotion tiles -->
+          <section id="feelingsPage1" class="page active feelings-grid">
+            <div class="emotion-card grievance" onclick="navigateToFeelingsPage('feelingsPage2','Grievance')" role="button" tabindex="0">
+              <div class="emotion-inner">
+                <div class="emotion-icon">😡</div>
+                <div class="emotion-title">Grievance</div>
+                <div class="emotion-sub">Share what's bothering you</div>
+              </div>
+            </div>
 
-                document.getElementById('missYouMessage').innerHTML = message;
-                document.getElementById('missYouPopup').style.display = 'block';
-                document.getElementById('overlay').style.display = 'block';
-            }, 2000);
-        }
+            <div class="emotion-card appreciate" onclick="navigateToFeelingsPage('feelingsPage2','Appreciate')" role="button" tabindex="0">
+              <div class="emotion-inner">
+                <div class="emotion-icon">🙏</div>
+                <div class="emotion-title">Appreciate</div>
+                <div class="emotion-sub">Say something sweet</div>
+              </div>
+            </div>
 
-        function closeMissYouPopup() {
-            document.getElementById('missYouPopup').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
-        }
-    </script>
-    <script src="script.js"></script>
+            <div class="emotion-card sad" onclick="navigateToFeelingsPage('feelingsPage2','Sad')" role="button" tabindex="0">
+              <div class="emotion-inner">
+                <div class="emotion-icon">😢</div>
+                <div class="emotion-title">Sad</div>
+                <div class="emotion-sub">Vent your feelings</div>
+              </div>
+            </div>
+
+            <div class="emotion-card happy" onclick="navigateToFeelingsPage('feelingsPage2','Happy')" role="button" tabindex="0">
+              <div class="emotion-inner">
+                <div class="emotion-icon">😊</div>
+                <div class="emotion-title">Happy</div>
+                <div class="emotion-sub">Share your joy</div>
+              </div>
+            </div>
+
+            <button class="view-all-btn" onclick="fetchAndDisplayFeelingsEntries()">View All Entries</button>
+          </section>
+
+          <!-- Page 2: text input -->
+          <section id="feelingsPage2" class="page">
+            <h2></h2>
+            <div class="notebook">
+              <textarea id="feelingsMessage" placeholder="Write your thoughts here..." aria-label="Feelings message"></textarea>
+              <div class="notebook-actions">
+                <button id="submitFeelingsBtn" onclick="submitFeelingsEntry()">Submit Entry</button>
+                <button class="back-btn" onclick="navigateToFeelingsPage('feelingsPage1')">Back</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Page 3: confirmation -->
+          <section id="feelingsPage3" class="page">
+            <div class="confirmation-box">
+              <div id="feelings-animation-container">
+                <span id="feelings-mail-icon" aria-hidden="true">📧</span>
+                <div id="feelings-message-box" aria-hidden="true"></div>
+              </div>
+              <p id="feelings-thank-you-message">Thank you — your thoughts have been recorded.</p>
+              <div class="confirmation-actions">
+                <button class="main-home-btn" onclick="navigateToApp('homeScreen')">🏠 Main Home</button>
+                <button class="back-to-feelings-btn" onclick="navigateToFeelingsPage('feelingsPage1')">New Entry</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Page 4: view entries -->
+          <section id="feelingsViewEntriesPage" class="page">
+            <h2>Feelings Entries</h2>
+            <div id="feelingsEntriesList" class="entries-list-container" aria-live="polite">
+              <p>Loading entries...</p>
+            </div>
+            <button onclick="navigateToFeelingsPage('feelingsPage1')">Back to Feelings Portal</button>
+          </section>
+
+        </main>
+
+        <footer class="portal-footer">
+          <p>&copy; 2025 For Hetu with Love</p>
+        </footer>
+      </div>
+    </section>
+
+    <!-- DIARY -->
+    <section id="diaryScreen" class="screen" aria-labelledby="diaryTitle" hidden>
+      <div class="container">
+        <header>
+          <button class="back-to-home-btn" onclick="navigateToApp('homeScreen')">🏠 Home</button>
+          <h1 id="diaryTitle"><span class="dynamicUserName">User</span>'s Diary</h1>
+        </header>
+
+        <main>
+          <section id="diaryCalendarPage" class="page active">
+            <div class="calendar-header">
+              <button id="prevMonthBtn">←</button>
+              <h2 id="currentMonthYear">Month</h2>
+              <button id="nextMonthBtn">→</button>
+            </div>
+
+            <div id="calendarGrid" class="calendar-grid" role="grid" aria-label="Diary calendar"></div>
+
+            <div class="diary-actions">
+              <button onclick="fetchAndDisplayAllDiaryEntries()">View All Entries</button>
+            </div>
+          </section>
+
+          <!-- more diary pages... (keeps original structure) -->
+          <section id="diaryEntryPage" class="page" hidden>
+            <h2 id="diaryEntryTitle"></h2>
+            <p class="date-display">Date: <span id="diaryDateDisplay"></span></p>
+            <div class="notebook">
+              <textarea id="diaryThoughts" placeholder="Write your diary entry here..."></textarea>
+              <input type="hidden" id="selectedDate" />
+              <div class="notebook-actions">
+                <button onclick="submitDiaryEntry()">Save Entry</button>
+                <button class="back-btn" onclick="navigateToDiaryPage('diaryCalendarPage')">Back to Calendar</button>
+              </div>
+            </div>
+          </section>
+
+          <section id="diaryConfirmationPage" class="page" hidden>
+            <div class="confirmation-box">
+              <p>Your diary entry has been saved!</p>
+              <button class="main-home-btn" onclick="navigateToApp('homeScreen')">🏠 Main Home</button>
+              <button class="back-to-diary-btn" onclick="navigateToDiaryPage('diaryCalendarPage')">Back to Diary</button>
+            </div>
+          </section>
+
+          <section id="diaryViewPage" class="page" hidden>
+            <h2 class="date-display">Date: <span id="viewDiaryDateDisplay"></span></h2>
+            <div class="notebook view-only">
+              <p id="viewDiaryThoughts"></p>
+              <p id="diaryEntryAttribution" class="entry-attribution"></p>
+            </div>
+            <div id="diaryViewPageReplySection" class="reply-section-container"></div>
+            <button class="back-btn" onclick="navigateToDiaryPage('diaryCalendarPage')">Back to Calendar</button>
+          </section>
+
+          <section id="allDiaryEntriesPage" class="page" hidden>
+            <h2>All Diary Entries</h2>
+            <div id="allDiaryEntriesList" class="entries-list-container">
+              <p>Loading entries...</p>
+            </div>
+            <button onclick="navigateToDiaryPage('diaryCalendarPage')">Back to Calendar</button>
+          </section>
+        </main>
+
+        <footer class="portal-footer">
+          <p>&copy; 2025 For Hetu with Love</p>
+        </footer>
+      </div>
+    </section>
+
+    <!-- DARE GAME -->
+    <section id="dareGameScreen" class="screen" hidden>
+      <div class="container">
+        <header>
+          <button class="back-to-home-btn" onclick="navigateToApp('homeScreen')">🏠 Home</button>
+          <h1>Couple's Dare Game</h1>
+        </header>
+
+        <main>
+          <div class="dare-display-area">
+            <p id="dareText">Click the button below to get your first dare!</p>
+          </div>
+          <div class="dare-actions">
+            <button id="nextDareBtn" onclick="generateDare()">Next Dare 🔥</button>
+          </div>
+        </main>
+
+        <footer class="portal-footer">
+          <p>&copy; 2025 For Hetu with Love</p>
+        </footer>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Miss you popup & overlay -->
+  <div id="missYouPopup" role="dialog" aria-modal="true" hidden>
+    <p id="missYouMessage"></p>
+    <button onclick="closeMissYouPopup()">Okay ❤️</button>
+  </div>
+  <div id="overlay" hidden></div>
+
+  <!-- Inline helpers and initial small script (keeps existing behavior) -->
+  <script>
+    // small DOM ready log and safety (keeps original app script separated)
+    console.log('Page loaded — using dark + pink UI.');
+    document.addEventListener('DOMContentLoaded', function () {
+      // make sure screen visibility state aligns with login status (script.js has checkLoginStatus)
+    });
+  </script>
+
+  <!-- Your main app JS (unchanged logic) -->
+  <script src="script.js"></script>
 </body>
 </html>
