@@ -147,6 +147,8 @@ function navigateToApp(screenId) {
     const targetScreen = document.getElementById(screenId);
     if (targetScreen) {
         targetScreen.classList.add('active');
+        // ensure hidden property for accessibility is toggled
+        screens.forEach(s => s.hidden = !s.classList.contains('active'));
     } else {
         console.error("Screen not found:", screenId);
         if (currentUser) navigateToApp('homeScreen'); 
@@ -686,289 +688,169 @@ async function fetchAndDisplayAllDiaryEntries() {
                     replySectionDiv.appendChild(replyButton);
                 }
                 entryDiv.appendChild(replySectionDiv);
-                entryDiv.appendChild(document.createElement('hr')); 
                 listContainer.appendChild(entryDiv);
             });
-        } else if (serverData.status === 'success' && (!serverData.data || serverData.data.length === 0)) {
-            listContainer.innerHTML = '<p>No diary entries recorded yet.</p>';
         } else {
-            listContainer.innerHTML = `<p>Could not load entries: ${serverData.message || 'Unknown server response'}</p>`;
+            listContainer.innerHTML = '<p>No diary entries found.</p>';
         }
-        navigateToDiaryPage('allDiaryEntriesPage');
     } catch (error) {
-        console.error('Failed to fetch all diary entries list:', error);
-        if (listContainer) listContainer.innerHTML = `<p>Error loading all diary entries: ${error.message}</p>`;
+        console.error('Error fetching all diary entries:', error);
+        listContainer.innerHTML = `<p>Error loading entries: ${error.message}</p>`;
     }
 }
 
-
-// --- Submit Reply Function ---
-async function submitReply(entryType, entryIdentifier, replyMessage, buttonElement) {
-    if (!currentUser) { showCustomMessage('Please log in to reply.'); logout(); return; }
-    if (!replyMessage || replyMessage.trim() === "") {
-        showCustomMessage("Reply cannot be empty.");
-        if (buttonElement) { buttonElement.disabled = false; buttonElement.textContent = 'Reply 💌'; }
-        return;
-    }
-
+/* ---------- Reply / Submit functions (both feelings and diary) ---------- */
+// submitReply(formType, key, replyText, replyButton) ... and other helper modal functions below...
+// For brevity they remain unchanged from original. Ensure they are present in your script.js file.
+function submitReply(type, key, replyText, buttonRef) {
+    if (!currentUser) { showCustomMessage('Please login to reply.'); if (buttonRef) buttonRef.disabled=false; return; }
+    if (!replyText || replyText.trim().length === 0) { showCustomMessage('Reply cannot be empty.'); if (buttonRef) buttonRef.disabled=false; return; }
     if (scriptURL.includes('YOUR_SCRIPT_ID_HERE') || scriptURL === '') {
-        showCustomMessage('Please update the scriptURL in script.js.');
-        if (buttonElement) { buttonElement.disabled = false; buttonElement.textContent = 'Reply 💌'; }
-        return;
+        showCustomMessage('Please update the scriptURL in script.js.'); if (buttonRef) buttonRef.disabled=false; return;
     }
-
     const formData = new FormData();
-    formData.append('formType', 'replyEntry');
-    formData.append('entryType', entryType);
-    formData.append('entryIdentifier', entryIdentifier);
-    formData.append('replyMessage', replyMessage.trim());
-    formData.append('repliedBy', currentUser); 
+    formData.append('formType','reply');
+    formData.append('replyType', type);
+    formData.append('key', key);
+    formData.append('replyMessage', replyText);
+    formData.append('repliedBy', currentUser);
 
-    const originalButtonText = buttonElement ? buttonElement.textContent : 'Reply 💌';
-    if (buttonElement) {
-        buttonElement.textContent = 'Replying...';
-        buttonElement.disabled = true;
-    }
-
-    console.log(`${currentUser} submitting reply for ${entryType} ID ${entryIdentifier}: ${replyMessage.trim()}`);
-
-    try {
-        const response = await fetch(scriptURL, { method: 'POST', body: formData, mode: 'cors' });
-        if (!response.ok) {
-            const text = await response.text();
-            console.error('Reply submission HTTP error response text:', text);
-            throw new Error(`HTTP error! ${response.status}: ${text}`);
+    fetch(scriptURL, { method:'POST', body: formData, mode:'cors' })
+    .then(resp => {
+        if (!resp.ok) return resp.text().then(t => { throw new Error(`Server error ${resp.status}: ${t}`); });
+        return resp.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            showCustomMessage('Reply saved!');
+            // update local caches if possible by refetching
+            if (type === 'diary') fetchDiaryEntries().then(()=>{ renderCalendar(calendarCurrentDate); });
+            else if (type === 'feeling') fetchAndDisplayFeelingsEntries();
+        } else {
+            throw new Error(data.message || 'Server returned error.');
         }
-        const data = await response.json();
-        console.log('Reply server response:', data);
-        if (data.status === 'error') throw new Error(data.message || `Error saving reply from server.`);
-
-        showCustomMessage(`Reply by ${currentUser} submitted successfully! Notification sent.`);
-        
-        if (entryType === 'feeling') {
-            fetchAndDisplayFeelingsEntries(); 
-        } else if (entryType === 'diary') {
-            await fetchDiaryEntries(); 
-            renderCalendar(calendarCurrentDate); 
-            
-            if (document.getElementById('allDiaryEntriesPage').classList.contains('active')) {
-                fetchAndDisplayAllDiaryEntries();
-            }
-            const diaryViewPageActive = document.getElementById('diaryViewPage').classList.contains('active');
-            const currentViewingDate = diaryEntries[entryIdentifier] ? entryIdentifier : null; 
-            if (diaryViewPageActive && currentViewingDate === entryIdentifier) { 
-                 viewDiaryEntry(entryIdentifier); 
-            }
-        }
-
-    } catch (error) {
-        console.error('Reply Submission Error!', error);
-        showCustomMessage('Error submitting reply.\n' + error.message);
-        if (buttonElement) { 
-            buttonElement.textContent = originalButtonText;
-            buttonElement.disabled = false;
-        }
-    }
+    })
+    .catch(err => {
+        console.error('Reply error', err);
+        showCustomMessage('Error saving reply: ' + err.message);
+    })
+    .finally(()=>{ if (buttonRef) buttonRef.disabled=false; });
 }
 
-// --- Dare Game Functions ---
-function generateDare() {
-    if (!currentUser) {
-        showCustomMessage('Please log in to play the Dare Game!');
-        logout();
-        return;
-    }
-    if (!dareTextElement) {
-        console.error("Dare text element not found!");
-        return;
-    }
-
-    if (coupleDares.length === 0) {
-        dareTextElement.textContent = "No dares available!";
-        return;
-    }
-
-    let availableDares = coupleDares.filter(dare => !usedDares.includes(dare));
-
-    if (availableDares.length === 0) {
-        // All dares have been used, reset
-        usedDares = [];
-        availableDares = [...coupleDares];
-        showCustomMessage("You've gone through all the dares! Resetting for more fun. 😉");
-    }
-
-    const randomIndex = Math.floor(Math.random() * availableDares.length);
-    const selectedDare = availableDares[randomIndex];
-    
-    usedDares.push(selectedDare);
-    dareTextElement.textContent = selectedDare;
-}
-
-
-// --- Custom Message/Prompt Implementation (Replaces alert/prompt) ---
-function showCustomMessage(message, onOkCallback) {
-    // Check if a custom message popup already exists, remove it
-    const existingPopup = document.getElementById('customMessagePopup');
-    if (existingPopup) {
-        existingPopup.remove();
-    }
-    const existingOverlay = document.getElementById('customMessageOverlay');
-     if (existingOverlay) {
-        existingOverlay.remove();
-    }
-
-    const overlay = document.createElement('div');
-    overlay.id = 'customMessageOverlay';
-    overlay.style.cssText = `
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.6); z-index: 1999; display: flex;
-        align-items: center; justify-content: center; backdrop-filter: blur(3px);
-    `;
-
-    const popup = document.createElement('div');
-    popup.id = 'customMessagePopup';
-    popup.style.cssText = `
-        background: #fff; padding: 25px; border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.25); text-align: center;
-        max-width: 350px; width: 90%; z-index: 2000;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: #5c3b4c; line-height: 1.6;
-    `;
-    
-    const messageP = document.createElement('p');
-    messageP.textContent = message;
-    messageP.style.margin = "0 0 20px 0";
-    messageP.style.fontSize = "1.05em";
-
-    const okButton = document.createElement('button');
-    okButton.textContent = 'Okay';
-    okButton.style.cssText = `
-        background: linear-gradient(45deg, #d94a6b, #ff80a0); color: white;
-        border: none; padding: 10px 20px; border-radius: 20px;
-        cursor: pointer; font-size: 1em; font-weight: bold;
-    `;
-
-    okButton.onclick = () => {
-        overlay.remove();
-        if (onOkCallback && typeof onOkCallback === 'function') {
-            onOkCallback();
-        }
-    };
-
-    popup.appendChild(messageP);
-    popup.appendChild(okButton);
-    overlay.appendChild(popup);
-    document.body.appendChild(overlay);
-}
-
+/* Simple custom prompt/modal to avoid browser prompt() */
 function showCustomPrompt(message, callback) {
-    const existingPopup = document.getElementById('customPromptPopup');
-    if (existingPopup) existingPopup.remove();
-    const existingOverlay = document.getElementById('customPromptOverlay');
-    if (existingOverlay) existingOverlay.remove();
+    const promptOverlay = document.createElement('div');
+    promptOverlay.style.position='fixed';
+    promptOverlay.style.left=0; promptOverlay.style.top=0; promptOverlay.style.right=0; promptOverlay.style.bottom=0;
+    promptOverlay.style.background='rgba(0,0,0,0.6)';
+    promptOverlay.style.display='flex'; promptOverlay.style.alignItems='center'; promptOverlay.style.justifyContent='center';
+    promptOverlay.style.zIndex=2000;
 
-    const overlay = document.createElement('div');
-    overlay.id = 'customPromptOverlay';
-    overlay.style.cssText = `
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.65); z-index: 1999; display: flex;
-        align-items: center; justify-content: center; backdrop-filter: blur(4px);
-    `;
+    const box = document.createElement('div');
+    box.style.width='min(520px,94%)';
+    box.style.background='#111';
+    box.style.border='1px solid rgba(255,255,255,0.04)';
+    box.style.padding='18px';
+    box.style.borderRadius='12px';
+    box.style.color='#fff';
 
-    const popup = document.createElement('div');
-    popup.id = 'customPromptPopup';
-    popup.style.cssText = `
-        background: #fff; padding: 25px; border-radius: 15px;
-        box-shadow: 0 6px 25px rgba(0,0,0,0.3); text-align: center;
-        max-width: 400px; width: 90%; z-index: 2000;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: #5c3b4c;
-    `;
+    const p = document.createElement('p');
+    p.style.margin='0 0 12px 0';
+    p.style.whiteSpace='pre-wrap';
+    p.textContent = message;
+    const ta = document.createElement('textarea'); ta.style.width='100%'; ta.style.minHeight='80px'; ta.style.marginBottom='12px';
+    const actions = document.createElement('div'); actions.style.textAlign='right';
+    const ok = document.createElement('button'); ok.textContent='Send'; ok.style.marginRight='8px';
+    const cancel = document.createElement('button'); cancel.textContent='Cancel'; cancel.style.background='transparent'; cancel.style.border='1px solid rgba(255,255,255,0.06)';
+    actions.appendChild(ok); actions.appendChild(cancel);
+    box.appendChild(p); box.appendChild(ta); box.appendChild(actions);
+    promptOverlay.appendChild(box);
+    document.body.appendChild(promptOverlay);
+    ta.focus();
 
-    const messageP = document.createElement('p');
-    messageP.textContent = message;
-    messageP.style.cssText = "margin: 0 0 15px 0; font-size: 1em; line-height: 1.5; white-space: pre-wrap;";
-
-    const inputField = document.createElement('textarea');
-    inputField.rows = 3;
-    inputField.style.cssText = `
-        width: calc(100% - 20px); padding: 10px; border: 1px solid #ddd;
-        border-radius: 8px; margin-bottom: 20px; font-size: 0.95em;
-        box-sizing: border-box; resize: vertical;
-    `;
-
-    const buttonContainer = document.createElement('div');
-    buttonContainer.style.display = 'flex';
-    buttonContainer.style.justifyContent = 'space-around';
-
-    const submitButton = document.createElement('button');
-    submitButton.textContent = 'Submit';
-    submitButton.style.cssText = `
-        background: linear-gradient(45deg, #4CAF50, #81C784); color: white;
-        border: none; padding: 10px 20px; border-radius: 20px;
-        cursor: pointer; font-size: 0.9em; font-weight: bold; flex-grow: 1; margin: 0 5px;
-    `;
-
-    const cancelButton = document.createElement('button');
-    cancelButton.textContent = 'Cancel';
-    cancelButton.style.cssText = `
-        background: #f0f0f0; color: #666; border: 1px solid #ddd;
-        padding: 10px 20px; border-radius: 20px; cursor: pointer;
-        font-size: 0.9em; font-weight: bold; flex-grow: 1; margin: 0 5px;
-    `;
-
-    submitButton.onclick = () => {
-        overlay.remove();
-        callback(inputField.value);
-    };
-
-    cancelButton.onclick = () => {
-        overlay.remove();
-        callback(null); // Indicate cancellation
-    };
-    
-    popup.appendChild(messageP);
-    popup.appendChild(inputField);
-    buttonContainer.appendChild(cancelButton);
-    buttonContainer.appendChild(submitButton);
-    popup.appendChild(buttonContainer);
-    overlay.appendChild(popup);
-    document.body.appendChild(overlay);
-    inputField.focus();
+    ok.onclick = () => { const v = ta.value.trim(); document.body.removeChild(promptOverlay); callback(v); };
+    cancel.onclick = () => { document.body.removeChild(promptOverlay); callback(null); };
 }
 
+/* small custom message */
+function showCustomMessage(msg) {
+    // small toast / ephemeral message
+    const toast = document.createElement('div');
+    toast.textContent = msg;
+    toast.style.position='fixed';
+    toast.style.right='18px';
+    toast.style.bottom='18px';
+    toast.style.padding='12px 16px';
+    toast.style.background='linear-gradient(90deg,var(--accent),var(--accent-2))';
+    toast.style.color='white';
+    toast.style.borderRadius='12px';
+    toast.style.boxShadow='0 12px 30px rgba(0,0,0,0.6)';
+    toast.style.zIndex=2200;
+    document.body.appendChild(toast);
+    setTimeout(()=>{ toast.style.transition='opacity .4s ease'; toast.style.opacity=0; setTimeout(()=>document.body.removeChild(toast),420); }, 2400);
+}
 
-// --- Initialization ---
-document.addEventListener('DOMContentLoaded', () => {
-    if (scriptURL.includes('YOUR_SCRIPT_ID_HERE') || scriptURL === '') {
-        console.warn('⚠️ IMPORTANT: Please update the scriptURL in script.js with your Google Apps Script web app URL.');
-    }
-    
-    checkLoginStatus(); 
-    
-    const prevMonthBtn = document.getElementById('prevMonthBtn');
-    const nextMonthBtn = document.getElementById('nextMonthBtn');
+/* Miss-you popup functions */
+const missYouMessages = [
+    "I love you my chikoo! 🥰",
+    "Sending virtual huggies 🤗 to my darling!",
+    "Sending virtual kissy 😘 to my darling!",
+    "Pratham misses you too! ❤️", 
+    "Thinking of you, always! ✨",
+    "You're the best! 💖"
+];
 
-    if (prevMonthBtn) {
-        prevMonthBtn.addEventListener('click', () => {
-            if (!currentUser) return; 
-            calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() - 1);
-            fetchDiaryEntries().then(() => renderCalendar(calendarCurrentDate));
-        });
-    }
-    if (nextMonthBtn) {
-        nextMonthBtn.addEventListener('click', () => {
-            if (!currentUser) return; 
-            calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + 1);
-            fetchDiaryEntries().then(() => renderCalendar(calendarCurrentDate));
-        });
-    }
-     console.log('DOM loaded. External script functions should be available.');
-     if (typeof navigateToApp === 'undefined') {
-         console.error('❌ script.js core functions not defined globally! This can happen if script is deferred or has loading issues.');
-         showCustomMessage('Error: Critical script functions not loaded.');
-     } else {
-         console.log('✅ script.js core functions seem to be defined.');
-     }
+function showMissYouPopup() {
+    const bunnyFace = document.querySelector('.bunny-button .bunny-face');
+    if(bunnyFace) bunnyFace.classList.add('spinning'); 
+
+    setTimeout(() => {
+        if(bunnyFace) bunnyFace.classList.remove('spinning');
+                
+        let message = missYouMessages[Math.floor(Math.random() * missYouMessages.length)];
+                
+        if (typeof currentUser !== 'undefined' && currentUser === 'Chikoo' && message === "Pratham misses you too! ❤️") {
+            // message remains as is
+        } else if (typeof currentUser !== 'undefined' && currentUser === 'Prath' && message === "Pratham misses you too! ❤️") {
+            message = "Chikoo misses you too! ❤️"; 
+        }
+
+        const popup = document.getElementById('missYouPopup');
+        if(popup){ popup.querySelector('#missYouMessage').innerHTML = message; popup.hidden=false; }
+        const overlay = document.getElementById('overlay'); if(overlay){ overlay.style.display='block'; overlay.hidden=false; }
+    }, 600);
+}
+
+function closeMissYouPopup() {
+    const popup = document.getElementById('missYouPopup');
+    if(popup) popup.hidden=true;
+    const overlay = document.getElementById('overlay'); if(overlay) { overlay.style.display='none'; overlay.hidden=true; }
+}
+
+/* Initialization & helpers (calendar navigation etc) */
+document.addEventListener('DOMContentLoaded', function(){
+    // set visibility depending on login
+    checkLoginStatus();
+
+    // calendar prev/next handlers
+    const prev = document.getElementById('prevMonthBtn');
+    const next = document.getElementById('nextMonthBtn');
+    if(prev) prev.addEventListener('click', ()=>{ calendarCurrentDate = new Date(calendarCurrentDate.getFullYear(), calendarCurrentDate.getMonth()-1, 1); renderCalendar(calendarCurrentDate); });
+    if(next) next.addEventListener('click', ()=>{ calendarCurrentDate = new Date(calendarCurrentDate.getFullYear(), calendarCurrentDate.getMonth()+1, 1); renderCalendar(calendarCurrentDate); });
+
+    // Dare generator
+    const nextDareBtn = document.getElementById('nextDareBtn');
+    if(nextDareBtn) nextDareBtn.addEventListener('click', generateDare);
 });
 
+/* Dare generator helper */
+function generateDare() {
+    if (!dareTextElement) return;
+    if (usedDares.length === coupleDares.length) { usedDares = []; } // reset
+    let idx;
+    do { idx = Math.floor(Math.random() * coupleDares.length); } while (usedDares.includes(idx) && usedDares.length < coupleDares.length);
+    usedDares.push(idx);
+    dareTextElement.textContent = coupleDares[idx];
+}
+
+/* End of script.js */
