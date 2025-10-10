@@ -1,0 +1,229 @@
+/* --- Your Original Styles Go Here --- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background: linear-gradient(to bottom right, #fceaff, #fff0f5); /* Main app background */
+    display: flex; /* This will be controlled by JS for login/app visibility */
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 15px;
+    color: #5c3b4c;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+/* All other existing styles from your style.css file remain here... */
+/* For brevity, I'm omitting the full original CSS, but it should be included */
+#loginContainer { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; width: 100%; padding: 20px; box-sizing: border-box; background: linear-gradient(to bottom right, #fde4f0, #fff5f8); animation: fadeInSimple 0.5s ease-out; }
+.login-box { background: #fff; padding: 30px 40px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); text-align: center; width: 100%; max-width: 400px; }
+.login-box h1 { color: #d94a6b; margin-bottom: 25px; font-size: clamp(1.8em, 5vw, 2.4em); }
+.login-options button { display: block; width: 100%; padding: 18px 20px; margin-bottom: 15px; font-size: 1.2em; font-weight: bold; border-radius: 15px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; border: none; }
+.login-options button.chikoo-btn { background: linear-gradient(45deg, #ffadc5, #ff80a0); color: white; box-shadow: 0 4px 12px rgba(255, 128, 160, 0.3); }
+.login-options button.prath-btn { background: linear-gradient(45deg, #7fd2ff, #5ab9ea); color: white; box-shadow: 0 4px 12px rgba(90, 185, 234, 0.3); }
+#appContainer { display: none; width: 100%; max-width: 800px; box-sizing: border-box; }
+.app-header-info { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background-color: rgba(255, 255, 255, 0.85); border-radius: 12px; margin-bottom: 15px; box-shadow: 0 3px 8px rgba(0,0,0,0.07); }
+#loggedInUserDisplay { font-size: 0.95em; color: #c73f60; font-weight: bold; }
+.logout-btn { background: #e9edf0; color: #555; border: 1px solid #d5d9dc; padding: 8px 15px; font-size: 0.9em; border-radius: 8px; cursor: pointer; font-weight: 500; transition: background 0.2s ease, border-color 0.2s ease; }
+.screen { display: none; width: 100%; animation: fadeInScale 0.6s ease-out forwards; transform-origin: center center; }
+.screen.active { display: block; }
+@keyframes fadeInScale { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+#homeScreen .main-header { text-align: center; margin-bottom: 30px; padding: 15px; }
+#homeScreen .main-header h1 { color: #d94a6b; font-size: clamp(2em, 6vw, 2.8em); text-shadow: 2px 2px 4px rgba(0,0,0,0.05); margin: 0; line-height: 1.2; }
+.options-grid { display: flex; flex-direction: column; gap: 20px; padding: 15px; align-items: center; }
+.option-box { background: #fff; border-radius: 20px; padding: 25px 20px; text-align: center; font-size: clamp(1.1em, 4vw, 1.4em); color: #d94a6b; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; border: 1px solid #ffe0f0; display: flex; align-items: center; justify-content: center; min-height: 80px; width: 100%; max-width: 320px; }
+.option-box:hover, .option-box:active { transform: translateY(-5px) scale(1.02); box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15); }
+.main-option { font-weight: bold; letter-spacing: 0.5px; min-height: 100px; }
+
+/* Include all your other original CSS styles here */
+
+/* --- START: NEW STYLES (APPEND TO END OF YOUR CSS) --- */
+.blossom-option {
+    background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+    color: #880e4f;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+}
+.blossom-container {
+    background: linear-gradient(135deg, #fce4ec, #f48fb1);
+    font-family: 'Poppins', sans-serif;
+    color: #4a148c;
+}
+.blossom-container header h1.blossom-title {
+    font-family: 'Pacifico', cursive;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    font-size: clamp(2em, 6vw, 2.8em);
+    padding-top: 40px; /* Adjust to match other headers */
+    line-height: 1.2;
+}
+.blossom-calendar-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    padding: 20px;
+}
+.blossom-calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.blossom-calendar-header h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #c2185b;
+    margin: 0;
+}
+.blossom-nav-btn {
+    background: #f06292;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+.blossom-nav-btn:hover {
+    background: #ec407a;
+    transform: scale(1.1);
+}
+.blossom-day-names {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #880e4f;
+    text-align: center;
+    font-size: 0.9em;
+}
+#blossom-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+.blossom-day {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    border: 2px solid transparent;
+}
+.blossom-day:not(.empty):hover {
+    background-color: #f06292;
+    color: white;
+    transform: scale(1.15);
+}
+.blossom-day.empty {
+    background: transparent;
+    cursor: default;
+}
+.blossom-day.today {
+    border-color: #ad1457;
+    font-weight: bold;
+}
+.blossom-day.period-day {
+    background-color: #ec407a;
+    color: white;
+    box-shadow: 0 0 15px rgba(236, 64, 122, 0.8);
+}
+.blossom-day.predicted-day {
+    background-color: rgba(244, 143, 177, 0.5);
+    border: 2px dashed #f06292;
+}
+.blossom-instructions {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.9em;
+    color: #880e4f;
+}
+
+.game-dare-option, .letter-option {
+    background: linear-gradient(135deg, #fff1f2, #ffdde1);
+    color: #d94a6b;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+}
+.game-container { text-align: center; }
+.game-instructions { margin-bottom: 1rem; font-size: 0.9em; color: #888; }
+#gameCanvas {
+    background: #fff8e1;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    cursor: grab;
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+}
+.game-score { margin-top: 1rem; font-weight: bold; font-size: 1.2em; color: #d94a6b; }
+.letter-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+}
+.letter-modal-overlay:not(.hidden) {
+    opacity: 1;
+    pointer-events: auto;
+}
+.letter-modal-content {
+    background: #fffde7;
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    font-family: 'Poppins', sans-serif;
+    transform: scale(0.9);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.letter-modal-overlay:not(.hidden) .letter-modal-content {
+    transform: scale(1);
+}
+.letter-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #d94a6b;
+    cursor: pointer;
+    line-height: 1;
+}
+.letter-title { font-family: 'Pacifico', cursive; color: #ec407a; font-size: 2.5rem; text-align: center; margin-bottom: 1rem; }
+.letter-body { color: #5d4037; line-height: 1.7; text-align: center; margin-bottom: 1.5rem; }
+.letter-signature { font-family: 'Pacifico', cursive; color: #ec407a; font-size: 2rem; text-align: right; }
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    opacity: 0.9;
+    animation: fall 5s linear forwards;
+    border-radius: 5px;
+    pointer-events: none;
+    z-index: 2001;
+}
+@keyframes fall {
+    to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+/* --- END: NEW STYLES --- */
