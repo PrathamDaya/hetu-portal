@@ -1,0 +1,514 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>For my Hetu - Love App</title>
+    <link rel="stylesheet" href="style.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<script src="https://statics.moonshot.cn/sdk/preview-widgets.min.js" defer=""></script></head>
+<body>
+    <!-- Login Container -->
+    <div id="loginContainer">
+        <div class="login-box">
+            <div class="login-icon">
+                <i class="fas fa-heart"></i>
+            </div>
+            <h1>Welcome! Who are you?</h1>
+            <div class="login-options">
+                <button class="chikoo-btn" onclick="login(&#39;Chikoo&#39;)">
+                    <span class="btn-icon">🐰</span>
+                    <span class="btn-text">I am Chikoo</span>
+                </button>
+                <button class="prath-btn" onclick="login(&#39;Prath&#39;)">
+                    <span class="btn-icon">🐼</span>
+                    <span class="btn-text">I am Prath</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="appContainer" style="display: none;">
+        <!-- App Header -->
+        <div class="app-header-info">
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span id="loggedInUserDisplay">User: Not logged in</span>
+            </div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </div>
+
+        <!-- Home Screen -->
+        <section id="homeScreen" class="screen active">
+            <header class="main-header">
+                <div class="header-decoration">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h1>For my Hetu</h1>
+                <p class="subtitle">A special place for our love</p>
+            </header>
+            
+            <main class="options-grid">
+                <div class="option-box main-option feelings-option" onclick="navigateToApp(&#39;feelingsPortalScreen&#39;)">
+                    <div class="option-icon">
+                        <i class="fas fa-heart-pulse"></i>
+                    </div>
+                    <div class="option-content">
+                        <h3>💖 Hetu&#39;s Feelings Portal 💖</h3>
+                        <p>Share your thoughts and emotions</p>
+                    </div>
+                </div>
+                
+                <div class="option-box main-option diary-option" onclick="navigateToApp(&#39;diaryScreen&#39;)">
+                    <div class="option-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="option-content">
+                        <h3>📅 Hetu&#39;s Diary 📅</h3>
+                        <p>Record your daily memories</p>
+                    </div>
+                </div>
+                
+                <div class="option-box main-option dare-option" onclick="navigateToApp(&#39;dareGameScreen&#39;)">
+                    <div class="option-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="option-content">
+                        <h3>😈 Couple&#39;s Dare Game 😈</h3>
+                        <p>Fun challenges for both of us</p>
+                    </div>
+                </div>
+
+                <!-- New Features -->
+                <div class="option-box main-option period-option" onclick="navigateToApp(&#39;periodTrackerScreen&#39;)">
+                    <div class="option-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="option-content">
+                        <h3>🌸 Period Tracker 🌸</h3>
+                        <p>Track your monthly cycle</p>
+                    </div>
+                </div>
+
+                <div class="option-box main-option games-option" onclick="navigateToApp(&#39;gamesScreen&#39;)">
+                    <div class="option-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <div class="option-content">
+                        <h3>🎮 Arcade Games 🎮</h3>
+                        <p>Fun games for you</p>
+                    </div>
+                </div>
+
+                <div class="option-box main-option love-letter-option" onclick="openLoveLetter()">
+                    <div class="option-icon">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </div>
+                    <div class="option-content">
+                        <h3>💌 Special Letter 💌</h3>
+                        <p>A surprise love letter for you</p>
+                    </div>
+                </div>
+                
+                <div class="option-box bunny-button" onclick="showMissYouPopup()">
+                    <div class="bunny-content">
+                        <span class="bunny-face">🐰</span>
+                        <span class="bunny-text">Click for Love!</span>
+                    </div>
+                </div>
+            </main>
+            
+            <footer class="main-footer">
+                <p>© 2025 For Hetu with Love <i class="fas fa-heart"></i></p>
+            </footer>
+        </section>
+
+        <!-- Feelings Portal Screen -->
+        <section id="feelingsPortalScreen" class="screen">
+            <div class="container">
+                <header>
+                    <button class="back-to-home-btn" onclick="navigateToApp(&#39;homeScreen&#39;)">
+                        <i class="fas fa-home"></i>
+                        Home
+                    </button>
+                    <h1>Hi <span class="dynamicUserName">User</span>, how can I help you?</h1>
+                </header>
+                
+                <main>
+                    <!-- Feelings Page 1 - Emotion Selection -->
+                    <section id="feelingsPage1" class="page active">
+                        <div class="feelings-grid">
+                            <div class="option-box grievance" onclick="navigateToFeelingsPage(&#39;feelingsPage2&#39;, &#39;Grievance&#39;)">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span>Grievance</span>
+                            </div>
+                            <div class="option-box appreciate" onclick="navigateToFeelingsPage(&#39;feelingsPage2&#39;, &#39;Appreciate&#39;)">
+                                <i class="fas fa-star"></i>
+                                <span>Appreciate</span>
+                            </div>
+                            <div class="option-box sad" onclick="navigateToFeelingsPage(&#39;feelingsPage2&#39;, &#39;Sad&#39;)">
+                                <i class="fas fa-sad-tear"></i>
+                                <span>Sad</span>
+                            </div>
+                            <div class="option-box happy" onclick="navigateToFeelingsPage(&#39;feelingsPage2&#39;, &#39;Happy&#39;)">
+                                <i class="fas fa-smile"></i>
+                                <span>Happy</span>
+                            </div>
+                        </div>
+                        <button class="view-all-btn" onclick="fetchAndDisplayFeelingsEntries()">
+                            <i class="fas fa-list"></i>
+                            View All Entries
+                        </button>
+                    </section>
+
+                    <!-- Feelings Page 2 - Message Input -->
+                    <section id="feelingsPage2" class="page">
+                        <h2 class="emotion-title"></h2>
+                        <div class="notebook">
+                            <textarea id="feelingsMessage" placeholder="Write your thoughts here..."></textarea>
+                            <button id="submitFeelingsBtn" onclick="submitFeelingsEntry()">
+                                <i class="fas fa-paper-plane"></i>
+                                Submit Entry
+                            </button>
+                        </div>
+                        <button class="back-btn" onclick="navigateToFeelingsPage(&#39;feelingsPage1&#39;)">
+                            <i class="fas fa-arrow-left"></i>
+                            Back
+                        </button>
+                    </section>
+
+                    <!-- Feelings Page 3 - Confirmation -->
+                    <section id="feelingsPage3" class="page">
+                        <div class="confirmation-box">
+                            <div id="feelings-animation-container">
+                                <span id="feelings-mail-icon">📧</span>
+                                <div id="feelings-message-box"></div>
+                            </div>
+                            <p id="feelings-thank-you-message">Thank you for sharing! Your thoughts have been recorded.</p>
+                            <div class="confirmation-buttons">
+                                <button class="main-home-btn" onclick="navigateToApp(&#39;homeScreen&#39;)">
+                                    <i class="fas fa-home"></i>
+                                    Main Home
+                                </button>
+                                <button class="back-to-feelings-btn" onclick="navigateToFeelingsPage(&#39;feelingsPage1&#39;)">
+                                    <i class="fas fa-plus"></i>
+                                    New Entry
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Feelings View Entries Page -->
+                    <section id="feelingsViewEntriesPage" class="page">
+                        <h2>Feelings Entries</h2>
+                        <div id="feelingsEntriesList" class="entries-list-container">
+                            <p>Loading entries...</p>
+                        </div>
+                        <button onclick="navigateToFeelingsPage(&#39;feelingsPage1&#39;)">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Feelings Portal
+                        </button>
+                    </section>
+                </main>
+                
+                <footer class="portal-footer">
+                    <p>© 2025 For Hetu with Love <i class="fas fa-heart"></i></p>
+                </footer>
+            </div>
+        </section>
+
+        <!-- Diary Screen -->
+        <section id="diaryScreen" class="screen">
+            <div class="container">
+                <header>
+                    <button class="back-to-home-btn" onclick="navigateToApp(&#39;homeScreen&#39;)">
+                        <i class="fas fa-home"></i>
+                        Home
+                    </button>
+                    <h1><span class="dynamicUserName">User</span>&#39;s Diary</h1>
+                </header>
+                
+                <main>
+                    <!-- Diary Calendar Page -->
+                    <section id="diaryCalendarPage" class="page active">
+                        <div class="calendar-header">
+                            <button id="prevMonthBtn"><i class="fas fa-chevron-left"></i></button>
+                            <h2 id="currentMonthYear"></h2>
+                            <button id="nextMonthBtn"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <div id="calendarGrid" class="calendar-grid"></div>
+                        <div class="diary-actions">
+                            <button onclick="fetchAndDisplayAllDiaryEntries()">
+                                <i class="fas fa-book"></i>
+                                View All Entries
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- Diary Entry Page -->
+                    <section id="diaryEntryPage" class="page">
+                        <h2 id="diaryEntryTitle"></h2>
+                        <p class="date-display">Date: <span id="diaryDateDisplay"></span></p>
+                        <div class="notebook">
+                            <textarea id="diaryThoughts" placeholder="Write your diary entry here..."></textarea>
+                            <input type="hidden" id="selectedDate"/>
+                            <button onclick="submitDiaryEntry()">
+                                <i class="fas fa-save"></i>
+                                Save Entry
+                            </button>
+                        </div>
+                        <button class="back-btn" onclick="navigateToDiaryPage(&#39;diaryCalendarPage&#39;)">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Calendar
+                        </button>
+                    </section>
+
+                    <!-- Diary Confirmation Page -->
+                    <section id="diaryConfirmationPage" class="page">
+                        <div class="confirmation-box">
+                            <div class="success-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <p>Your diary entry has been saved!</p>
+                            <div class="confirmation-buttons">
+                                <button class="main-home-btn" onclick="navigateToApp(&#39;homeScreen&#39;)">
+                                    <i class="fas fa-home"></i>
+                                    Main Home
+                                </button>
+                                <button class="back-to-diary-btn" onclick="navigateToDiaryPage(&#39;diaryCalendarPage&#39;)">
+                                    <i class="fas fa-calendar"></i>
+                                    Back to Diary
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Diary View Page -->
+                    <section id="diaryViewPage" class="page">
+                        <h2 class="date-display">Date: <span id="viewDiaryDateDisplay"></span></h2>
+                        <div class="notebook view-only">
+                            <p id="viewDiaryThoughts"></p>
+                            <p id="diaryEntryAttribution" class="entry-attribution"></p>
+                        </div>
+                        <div id="diaryViewPageReplySection" class="reply-section-container"></div>
+                        <button class="back-btn" onclick="navigateToDiaryPage(&#39;diaryCalendarPage&#39;)">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Calendar
+                        </button>
+                    </section>
+
+                    <!-- All Diary Entries Page -->
+                    <section id="allDiaryEntriesPage" class="page">
+                        <h2>All Diary Entries</h2>
+                        <div id="allDiaryEntriesList" class="entries-list-container">
+                            <p>Loading entries...</p>
+                        </div>
+                        <button onclick="navigateToDiaryPage(&#39;diaryCalendarPage&#39;)">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Calendar
+                        </button>
+                    </section>
+                </main>
+                
+                <footer class="portal-footer">
+                    <p>© 2025 For Hetu with Love <i class="fas fa-heart"></i></p>
+                </footer>
+            </div>
+        </section>
+
+        <!-- Dare Game Screen -->
+        <section id="dareGameScreen" class="screen">
+            <div class="container">
+                <header>
+                    <button class="back-to-home-btn" onclick="navigateToApp(&#39;homeScreen&#39;)">
+                        <i class="fas fa-home"></i>
+                        Home
+                    </button>
+                    <h1>Couple&#39;s Dare Game</h1>
+                </header>
+                
+                <main>
+                    <div class="dare-display-area">
+                        <div class="dare-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <p id="dareText">Click the button below to get your first dare!</p>
+                    </div>
+                    <div class="dare-actions">
+                        <button id="nextDareBtn" onclick="generateDare()">
+                            <i class="fas fa-dice"></i>
+                            Next Dare 🔥
+                        </button>
+                    </div>
+                </main>
+                
+                <footer class="portal-footer">
+                    <p>© 2025 For Hetu with Love <i class="fas fa-heart"></i></p>
+                </footer>
+            </div>
+        </section>
+
+        <!-- Period Tracker Screen -->
+        <section id="periodTrackerScreen" class="screen">
+            <div class="container">
+                <header>
+                    <button class="back-to-home-btn" onclick="navigateToApp(&#39;homeScreen&#39;)">
+                        <i class="fas fa-home"></i>
+                        Home
+                    </button>
+                    <h1><span class="dynamicUserName">User</span>&#39;s Period Tracker</h1>
+                </header>
+                
+                <main>
+                    <div class="period-tracker-content">
+                        <div class="period-calendar">
+                            <div class="period-header">
+                                <h2>Track Your Cycle</h2>
+                                <p>Stay informed and prepared</p>
+                            </div>
+                            
+                            <div class="period-input">
+                                <label for="lastPeriodDate">Last Period Start Date:</label>
+                                <input type="date" id="lastPeriodDate"/>
+                            </div>
+                            
+                            <div class="period-input">
+                                <label for="cycleLength">Cycle Length (days):</label>
+                                <select id="cycleLength">
+                                    <option value="28">28 days</option>
+                                    <option value="29">29 days</option>
+                                    <option value="30">30 days</option>
+                                    <option value="31">31 days</option>
+                                    <option value="32">32 days</option>
+                                </select>
+                            </div>
+                            
+                            <button onclick="calculatePeriod()">
+                                <i class="fas fa-calculator"></i>
+                                Calculate
+                            </button>
+                            
+                            <div id="periodResults" class="period-results" style="display: none;">
+                                <div class="result-card">
+                                    <h3>Next Period</h3>
+                                    <p id="nextPeriodDate"></p>
+                                </div>
+                                <div class="result-card">
+                                    <h3>Fertile Window</h3>
+                                    <p id="fertileWindow"></p>
+                                </div>
+                                <div class="result-card">
+                                    <h3>Current Status</h3>
+                                    <p id="currentStatus"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                
+                <footer class="portal-footer">
+                    <p>© 2025 For Hetu with Love <i class="fas fa-heart"></i></p>
+                </footer>
+            </div>
+        </section>
+
+        <!-- Games Screen -->
+        <section id="gamesScreen" class="screen">
+            <div class="container">
+                <header>
+                    <button class="back-to-home-btn" onclick="navigateToApp(&#39;homeScreen&#39;)">
+                        <i class="fas fa-home"></i>
+                        Home
+                    </button>
+                    <h1>Arcade Games</h1>
+                </header>
+                
+                <main>
+                    <div class="games-grid">
+                        <div class="game-card" onclick="playGame(&#39;memory&#39;)">
+                            <div class="game-icon">🧠</div>
+                            <h3>Memory Game</h3>
+                            <p>Test your memory skills</p>
+                        </div>
+                        
+                        <div class="game-card" onclick="playGame(&#39;cooking&#39;)">
+                            <div class="game-icon">👩‍🍳</div>
+                            <h3>Kitchen Fun</h3>
+                            <p>Virtual cooking adventure</p>
+                        </div>
+                        
+                        <div class="game-card" onclick="playGame(&#39;dressup&#39;)">
+                            <div class="game-icon">👗</div>
+                            <h3>Fashion Studio</h3>
+                            <p>Dress up and style</p>
+                        </div>
+                        
+                        <div class="game-card" onclick="playGame(&#39;puzzle&#39;)">
+                            <div class="game-icon">🧩</div>
+                            <h3>Puzzle Challenge</h3>
+                            <p>Solve beautiful puzzles</p>
+                        </div>
+                    </div>
+                    
+                    <div id="gameContainer" class="game-container" style="display: none;">
+                        <button class="back-btn" onclick="closeGame()">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Games
+                        </button>
+                        <div id="gameContent"></div>
+                    </div>
+                </main>
+                
+                <footer class="portal-footer">
+                    <p>© 2025 For Hetu with Love <i class="fas fa-heart"></i></p>
+                </footer>
+            </div>
+        </section>
+    </div>
+
+    <!-- Love Letter Modal -->
+    <div id="loveLetterModal" class="love-letter-modal">
+        <div class="envelope">
+            <div class="envelope-flap"></div>
+            <div class="envelope-body">
+                <div class="letter-paper">
+                    <div class="letter-content">
+                        <h1>My Dearest Hetu 💕</h1>
+                        <p>Every moment with you is like a beautiful dream come true. Your smile lights up my world like the stars light up the night sky.</p>
+                        <p>When you&#39;re happy, my heart dances with joy. When you&#39;re sad, I want to be there to wipe away every tear and make everything better.</p>
+                        <p>You are my sunshine, my moonlight, and all my stars. With you, every day is Valentine&#39;s Day, every moment is precious.</p>
+                        <p>Forever and always, I am yours and you are mine. Together, we create our own fairy tale.</p>
+                        <div class="signature">
+                            <p>With all my love,</p>
+                            <p class="signature-name">Your Pratham ❤️</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="close-letter-btn" onclick="closeLoveLetter()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- Miss You Popup -->
+    <div id="missYouPopup">
+        <div class="popup-icon">
+            <i class="fas fa-heart"></i>
+        </div>
+        <p id="missYouMessage"></p>
+        <button onclick="closeMissYouPopup()">
+            <i class="fas fa-heart"></i>
+            Okay ❤️
+        </button>
+    </div>
+
+    <!-- Overlay -->
+    <div id="overlay"></div>
+
+    <script src="script.js"></script>
+
+</body></html>
