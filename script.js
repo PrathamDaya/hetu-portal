@@ -216,7 +216,14 @@ function showCustomPopup(title, message, inputPlaceholder = null, callback = nul
 }
 
 // ===== NAVIGATION =====
-function navigateToApp(screenId) {
+const originalNavigateToApp = navigateToApp;
+
+navigateToApp = function(screenId) {
+    // Cleanup heart game if leaving
+    if (document.querySelector('#heartGameScreen.screen.active')) {
+        cleanupHeartGame();
+    }
+    
     if (!currentUser && screenId !== 'loginScreen') {
         showCustomPopup('Session Expired', 'Please log in again.');
         logout();
@@ -240,11 +247,13 @@ function navigateToApp(screenId) {
             document.getElementById('dareText').textContent = "Click the button below to get your first dare!";
         } else if (screenId === 'periodTrackerScreen') {
             loadPeriodTracker();
+        } else if (screenId === 'heartGameScreen') {
+            initHeartGameScreen();
         }
     } else {
         showCustomPopup('Error', 'Screen not found!');
     }
-}
+};
 
 // ===== FEELINGS PORTAL =====
 function navigateToFeelingsPage(pageId, emotion = '') {
@@ -713,7 +722,7 @@ function loadPeriodTracker() {
     }
 
     // Sort by start date
-    const sortedData = periodData.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+    const sortedData = periodData.sort((a, b) => new Date(b.startDate) - new Date(a.startData || b.startDate));
     const lastPeriod = sortedData[0];
     const lastStart = new Date(lastPeriod.startDate);
     const lastEnd = new Date(lastPeriod.endDate);
@@ -864,42 +873,102 @@ function closeMissYouPopup() {
     document.getElementById('overlay').style.display = 'none';
 }
 
-// ===== EVENT LISTENERS =====
-document.addEventListener('DOMContentLoaded', () => {
-    loadTheme();
-    checkLoginStatus();
-    
-    // Add floating emojis to login screen if not logged in
-    if (!currentUser) createFloatingEmojis();
-    
-    // Calendar navigation buttons
-    const prevBtn = document.getElementById('prevMonthBtn');
-    const nextBtn = document.getElementById('nextMonthBtn');
-    
-    if (prevBtn) {
-        prevBtn.onclick = () => {
-            calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() - 1);
-            fetchDiaryEntries().then(() => renderCalendar(calendarCurrentDate));
-        };
-    }
-    
-    if (nextBtn) {
-        nextBtn.onclick = () => {
-            calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + 1);
-            fetchDiaryEntries().then(() => renderCalendar(calendarCurrentDate));
-        };
-    }
-    
-    // Theme toggle
-    document.getElementById('themeToggle').onclick = toggleTheme;
-});
+// ===== HEART GAME VARIABLES =====
+let heartGameState = {
+    score: 0,
+    health: 3,
+    isRunning: false,
+    isPaused: false,
+    heartSpeed: 3000,
+    heartInterval: null,
+    gameLoopId: null,
+    hearts: [],
+    highScore: parseInt(localStorage.getItem('heartGameHighScore') || '0'),
+    difficulty: 1,
+    basketPosition: 50
+};
 
-// Prevent zoom on double tap for mobile
-let lastTouchEnd = 0;
-document.addEventListener('touchend', function (event) {
-    const now = (new Date()).getTime();
-    if (now - lastTouchEnd <= 300) {
-        event.preventDefault();
+// ===== HEART GAME FUNCTIONS =====
+function initHeartGameScreen() {
+    // Reset game state
+    heartGameState.isRunning = false;
+    heartGameState.isPaused = false;
+    heartGameState.score = 0;
+    heartGameState.health = 3;
+    heartGameState.hearts = [];
+    heartGameState.difficulty = 1;
+    heartGameState.heartSpeed = 3000;
+    
+    // Update UI
+    document.getElementById('currentScore').textContent = '0';
+    document.getElementById('highScore').textContent = heartGameState.highScore;
+    document.getElementById('healthDisplay').textContent = '❤️❤️❤️';
+    document.getElementById('startGameBtn').style.display = 'inline-block';
+    document.getElementById('startGameBtn').textContent = 'Start Game';
+    document.getElementById('pauseGameBtn').style.display = 'none';
+    document.getElementById('gameOverScreen').style.display = 'none';
+    
+    // Clear any remaining hearts
+    document.querySelectorAll('.heart').forEach(heart => heart.remove());
+    
+    // Position basket in center
+    const gameCanvas = document.getElementById('gameCanvas');
+    const basket = document.getElementById('basket');
+    if (gameCanvas && basket) {
+        basket.style.left = '50%';
+        basket.style.transform = 'translateX(-50%)';
     }
-    lastTouchEnd = now;
-}, false);
+}
+
+function startHeartGame() {
+    if (heartGameState.isRunning && !heartGameState.isPaused) return;
+    
+    if (heartGameState.isPaused) {
+        // Resume game
+        heartGameState.isPaused = false;
+        document.getElementById('pauseGameBtn').style.display = 'inline-block';
+        document.getElementById('startGameBtn').style.display = 'none';
+        gameLoop();
+        spawnHearts();
+        return;
+    }
+    
+    // Start new game
+    initHeartGameScreen();
+    heartGameState.isRunning = true;
+    document.getElementById('startGameBtn').style.display = 'none';
+    document.getElementById('pauseGameBtn').style.display = 'inline-block';
+    document.getElementById('gameOverScreen').style.display = 'none';
+    
+    // Initialize controls
+    initGameControls();
+    
+    // Start spawning hearts
+    spawnHearts();
+    
+    // Start game loop
+    gameLoop();
+}
+
+function pauseHeartGame() {
+    if (!heartGameState.isRunning || heartGameState.isPaused) return;
+    
+    heartGameState.isPaused = true;
+    clearTimeout(heartGameState.heartInterval);
+    cancelAnimationFrame(heartGameState.gameLoopId);
+    
+    document.getElementById('pauseGameBtn').style.display = 'none';
+    document.getElementById('startGameBtn').style.display = 'inline-block';
+    document.getElementById('startGameBtn').textContent = 'Resume';
+}
+
+function cleanupHeartGame() {
+    if (!heartGameState.isRunning) return;
+    pauseHeartGame();
+    document.querySelectorAll('.heart').forEach(heart => heart.remove());
+}
+
+function gameLoop() {
+    if (!heartGameState.isRunning || heartGameState.isPaused) return;
+    
+    // Check collisions and update
