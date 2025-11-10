@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For my Hetu 💖</title>
+    <style>
+        /* ===== CSS VARIABLES FOR LIGHT/DARK MODE ===== */
+        :root {
+            --bg-primary: linear-gradient(135deg, #fceaff 0%, #fff0f5 100%);
+            --bg-secondary: #ffffff;
+            --text-primary: #5c3b4c;
+            --text-secondary: #a07a8b;
+            --accent-color: #d94a6b;
+            --accent-gradient: linear-gradient(45deg, #ff80a0, #d94a6b);
+            --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            --card-hover-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+            --border-color: #ffe0f0;
+            --button-hover: #c03a5b;
+            --chikoo-gradient: linear-gradient(45deg, #ffadc5, #ff80a0);
+            --prath-gradient: linear-gradient(45deg, #7fd2ff, #5ab9ea);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: linear-gradient(135deg, #2d1b2e 0%, #1a121f 100%);
+            --bg-secondary: #2a2a2a;
+            --text-primary: #f5e9f0;
+            --text-secondary: #d0a0b0;
+            --accent-color: #ff6b95;
+            --accent-gradient: linear-gradient(45deg, #ff9eb2, #ff6b95);
+            --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            --card-hover-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+            --border-color: #4a2a3a;
+            --button-hover: #ff5a85;
+            --chikoo-gradient: linear-gradient(45deg, #ff85b3, #ff5a85);
+            --prath-gradient: linear-gradient(45deg, #6ac5ff, #4a9de8);
+        }
+
+        /* ===== BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            overflow-x: hidden;
+            transition: background 0.5s ease, color 0.3s ease;
+        }
+
+        /* ===== FLOATING EMOJI BACKGROUND ===== */
+        .floating-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .floating-emoji {
+            position: absolute;
+            font-size: 2em;
+            opacity: 0.15;
+            animation: float 6s ease-in-out infinite;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1));
+        }
+
+        [data-theme="dark"] .floating-emoji {
+            opacity: 0.08;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+
+        /* ===== THEME TOGGLE BUTTON ===== */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+            z-index: 100;
+            box-shadow: var(--card-shadow);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+        }
+
+        /* ===== LOGIN SCREEN ===== */
+        #loginContainer {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100%;
+            animation: fadeInSimple 0.5s ease-out;
+        }
+
+        .login-box {
+            background: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .login-box h1 {
+            color: var(--accent-color);
+            margin-bottom: 30px;
+            font-size: clamp(1.8em, 5vw, 2.4em);
+        }
+
+        .login-options button {
+            display: block;
+            width: 100%;
+            padding: 18px 20px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-options button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .login-options button:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .chikoo-btn {
+            background: var(--chikoo-gradient);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 128, 160, 0.3);
+        }
+
+        .prath-btn {
+            background: var(--prath-gradient);
+            color: white;
+            box-shadow: 0 4px 12px rgba(90, 185, 234, 0.3);
+        }
+
+        .login-options button:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        /* ===== APP CONTAINER ===== */
+        #appContainer {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .app-header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: var(--card-shadow);
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        #loggedInUserDisplay {
+            font-size: 0.95em;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background: #e9edf0;
+            color: #555;
+            border: 1px solid #d5d9dc;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: #d8dde1;
+            transform: scale(1.05);
+        }
+
+        /* ===== SCREEN MANAGEMENT ===== */
+        .screen {
+            display: none;
+            width: 100%;
+            animation: fadeInScale 0.6s ease-out forwards;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ===== MAIN MENU - ENHANCED CARDS ===== */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 15px;
+        }
+
+        /* Card Effect from Effect.css - Enhanced */
+        .option-box {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            font-size: clamp(1.1em, 4vw, 1.4em);
+            color: var(--accent-color);
+            box-shadow: var(--card-shadow);
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
+
+        .option-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .option-box:hover::before {
+            left: 100%;
+        }
+
+        .option-box:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: var(--card-hover-shadow);
+            filter: brightness(1.1);
+        }
+
+        /* Blur other cards on hover */
+        .options-grid:hover > .option-box:not(:hover) {
+            filter: blur(2px) brightness(0.9);
+            transform: scale(0.95);
+        }
+
+        .main-option {
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .bunny-button {
+            background: var(--accent-gradient);
+            color: white;
+            font-size: 1.5em;
+            grid-column: span 2;
+        }
+
+        .bunny-button .bunny-face {
+            font-size: 3em;
+            animation: bounce 0.8s infinite alternate ease-in-out;
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        .bunny-button .bunny-face.spinning {
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== PORTAL CONTAINERS ===== */
+        .container {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            padding: 20px 15px;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+        }
+
+        .container header {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .container header h1 {
+            color: var(--accent-color);
+            font-size: clamp(1.6em, 5vw, 2.2em);
+            margin: 0;
+            padding-top: 40px;
+        }
+
+        .back-to-home-btn {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-home-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .page {
+            display: none;
+            padding: 15px 0;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== NOTEBOOK STYLES ===== */
+        .notebook {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px auto;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+            max-width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .notebook:hover {
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .notebook textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1em;
+            color: var(--text-primary);
+            resize: vertical;
+            margin-bottom: 15px;
+            background: var(--bg-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .notebook textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 8px var(--accent-color);
+        }
+
+        /* ===== BUTTON STYLES ===== */
+        button {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            margin: 8px 4px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20px;
+            height: 200%;
+            background: rgba(255,255,255,0.3);
+            transform: rotate(25deg);
+            transition: all 0.6s;
+        }
+
+        button:hover::after {
+            left: 120%;
+        }
+
+        button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background: #cccccc;
+            color: #666666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .back-btn, .view-all-btn {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .back-btn:hover, .view-all-btn:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        /* ===== FEELINGS PORTAL ===== */
+        #feelingsPortalScreen .option-box {
+            font-size: 1.2em;
+            padding: 25px;
+            margin: 8px auto;
+            max-width: 280px;
+        }
+
+        #feelingsPortalScreen .option-box.grievance {
+            background: linear-gradient(45deg, #ffcdd2, #ef9a9a);
+            color: #c51162;
+        }
+        #feelingsPortalScreen .option-box.appreciate {
+            background: linear-gradient(45deg, #c8e6c9, #a5d6a7);
+            color: #1b5e20;
+        }
+        #feelingsPortalScreen .option-box.sad {
+            background: linear-gradient(45deg, #bbdefb, #90caf9);
+            color: #0d47a1;
+        }
+        #feelingsPortalScreen .option-box.happy {
+            background: linear-gradient(45deg, #ffecb3, #ffe082);
+            color: #ff6f00;
+        }
+
+        /* Animation for feelings submission */
+        #feelings-animation-container {
+            width: 150px;
+            height: 120px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        #feelings-mail-icon {
+            font-size: 3em;
+            color: var(--accent-color);
+            animation: bounceIn 1s forwards;
+        }
+
+        #feelings-message-box {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-color);
+            border-radius: 10px;
+            padding: 8px 12px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            animation: messageBoxRise 1.5s 0.5s forwards;
+            max-width: 140px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(10deg); opacity: 1; }
+            70% { transform: scale(0.9) rotate(-5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        @keyframes messageBoxRise {
+            0% { opacity: 0; transform: translate(-50%, 0%) rotate(-5deg); }
+            100% { opacity: 1; transform: translate(-50%, -120%) rotate(0deg); }
+        }
+
+        /* ===== DIARY CALENDAR ===== */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .calendar-header h2 {
+            color: var(--accent-color);
+            flex: 1;
+        }
+
+        .calendar-header button {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 12px 15px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-header button:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            padding: 15px;
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .calendar-day {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calendar-day::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .calendar-day:hover::before {
+            opacity: 0.2;
+        }
+
+        .calendar-day:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .calendar-day.today {
+            background: var(--accent-gradient);
+            color: white;
+            font-weight: bold;
+        }
+
+        .calendar-day.has-entry {
+            background: linear-gradient(45deg, #d94a6b, #ff80a0);
+            color: white;
+        }
+
+        .calendar-day.period-day {
+            background: linear-gradient(45deg, #ff6b9d, #ff9e7d);
+            color: white;
+        }
+
+        .calendar-day.predicted-period {
+            background: linear-gradient(45deg, #ffb6c1, #ffd1dc);
+            color: var(--text-primary);
+        }
+
+        .calendar-day .period-marker {
+            font-size: 0.5em;
+            position: absolute;
+            bottom: 2px;
+        }
+
+        /* ===== PERIOD TRACKER ===== */
+        .period-tracker-panel {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .period-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .period-controls button {
+            padding: 10px 15px;
+            font-size: 0.9em;
+        }
+
+        .period-status {
+            font-size: 1.1em;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .next-period-info {
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* ===== ENTRIES LIST ===== */
+        .entries-list-container {
+            max-height: 400px;
+            overflow-y: auto;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        /* Custom scrollbar */
+        .entries-list-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .entries-list-container::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+
+        .entries-list-container::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 10px;
+        }
+
+        .feelings-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .feelings-table th {
+            background: var(--accent-color);
+            color: white;
+            padding: 12px;
+            position: sticky;
+            top: -1px;
+            z-index: 1;
+        }
+
+        .feelings-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s ease;
+        }
+
+        .feelings-table tr:hover td {
+            background: rgba(217, 74, 107, 0.05);
+        }
+
+        .emotion-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        /* ===== REPLY SYSTEM ===== */
+        .reply-btn {
+            background: linear-gradient(45deg, #4CAF50, #81C784);
+            color: white;
+            padding: 8px 15px;
+            font-size: 0.9em;
+            border-radius: 20px;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .reply-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .reply-display {
+            margin-top: 10px;
+            padding: 12px 15px;
+            background: var(--bg-secondary);
+            border-left: 4px solid #4CAF50;
+            border-radius: 6px;
+            font-size: 0.9em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .reply-display.chikoo-reply {
+            border-left-color: #ff80a0;
+        }
+
+        .reply-display.prath-reply {
+            border-left-color: #5ab9ea;
+        }
+
+        /* ===== DARE GAME ===== */
+        .dare-display-area {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border: 2px dashed #ffc107;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px auto;
+            min-height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .dare-display-area {
+            background: linear-gradient(135deg, #3e2723 0%, #5d4037 100%);
+            border-color: #ffab40;
+        }
+
+        #dareText {
+            font-size: clamp(1.2em, 4vw, 1.5em);
+            color: #856404;
+            font-weight: bold;
+            line-height: 1.5;
+        }
+
+        [data-theme="dark"] #dareText {
+            color: #ffd54f;
+        }
+
+        #nextDareBtn {
+            background: linear-gradient(45deg, #ff7e5f, #feb47b);
+            font-size: 1.2em;
+            padding: 15px 30px;
+            transition: all 0.3s ease;
+        }
+
+        #nextDareBtn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(255, 126, 95, 0.4);
+        }
+
+        /* ===== CUSTOM MESSAGE POPUP ===== */
+        .custom-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            animation: fadeInSimple 0.3s ease;
+        }
+
+        .custom-popup {
+            background: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid var(--border-color);
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.7) translateY(20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .custom-popup h3 {
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .custom-popup p {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .custom-popup button {
+            padding: 10px 25px;
+            font-size: 1em;
+        }
+
+        /* ===== FOOTER ===== */
+        .main-footer, .portal-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            padding: 0 15px;
+        }
+
+        /* ===== MOBILE RESPONSIVENESS ===== */
+        @media (max-width: 480px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .bunny-button {
+                grid-column: span 1;
+            }
+            
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+                padding: 10px;
+                font-size: 1em;
+            }
+        }
+
+        /* ===== PERIOD TRACKER INTEGRATION ===== */
+        .period-input-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .period-input-group input {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .mood-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .mood-selector button {
+            padding: 8px 12px;
+            font-size: 1.5em;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .mood-selector button:hover {
+            transform: scale(1.2);
+        }
+
+        .mood-selector button.active {
+            background: var(--accent-gradient);
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Emoji Background -->
+    <div class="floating-bg" id="floatingBg"></div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌓</button>
+
+    <!-- Login Screen -->
+    <div id="loginContainer">
+        <div class="login-box">
+            <h1>Welcome! Who are you?</h1>
+            <div class="login-options">
+                <button class="chikoo-btn" onclick="login('Chikoo')">I am Chikoo 🐰</button>
+                <button class="prath-btn" onclick="login('Prath')">I am Prath 🐼</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="appContainer">
+        <div class="app-header-info">
+            <span id="loggedInUserDisplay">User: Not logged in</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <!-- Home Screen -->
+        <section id="homeScreen" class="screen active">
+            <header class="main-header">
+                <h1>For my Hetu 💖</h1>
+            </header>
+            <main class="options-grid">
+                <div class="option-box main-option" onclick="navigateToApp('feelingsPortalScreen')">
+                    💖 Hetu's Feelings Portal 💖
+                </div>
+                <div class="option-box main-option" onclick="navigateToApp('diaryScreen')">
+                    📅 Hetu's Diary 📅
+                </div>
+                <div class="option-box main-option" onclick="navigateToApp('dareGameScreen')">
+                    😈 Couple's Dare Game 😈
+                </div>
+                <div class="option-box main-option" onclick="navigateToApp('periodTrackerScreen')">
+                    🌸 Period Tracker 🌸
+                </div>
+                <div class="option-box bunny-button" onclick="showMissYouPopup()">
+                    <span class="bunny-face">🐰</span>
+                </div>
+            </main>
+            <footer class="main-footer">
+                <p>&copy; 2025 For Hetu with Love 💝</p>
+            </footer>
+        </section>
+
+        <!-- Feelings Portal -->
+        <section id="feelingsPortalScreen" class="screen">
+            <div class="container">
+                <header>
+                    <button class="back-to-home-btn" onclick="navigateToApp('homeScreen')">🏠 Home</button>
+                    <h1>Hi <span class="dynamicUserName">User</span>, how can I help you?</h1>
+                </header>
+                <main>
+                    <section id="feelingsPage1" class="page active">
+                        <div class="option-box grievance" onclick="navigateToFeelingsPage('feelingsPage2', 'Grievance')">Grievance</div>
+                        <div class="option-box appreciate" onclick="navigateToFeelingsPage('feelingsPage2', 'Appreciate')">Appreciate</div>
+                        <div class="option-box sad" onclick="navigateToFeelingsPage('feelingsPage2', 'Sad')">Sad</div>
+                        <div class="option-box happy" onclick="navigateToFeelingsPage('feelingsPage2', 'Happy')">Happy</div>
+                        <button class="view-all-btn" onclick="fetchAndDisplayFeelingsEntries()">View All Entries</button>
+                    </section>
+
+                    <section id="feelingsPage2" class="page">
+                        <h2></h2>
+                        <div class="notebook">
+                            <textarea id="feelingsMessage" placeholder="Write your thoughts here..."></textarea>
+                            <button id="submitFeelingsBtn" onclick="submitFeelingsEntry()">Submit Entry</button>
+                        </div>
+                        <button class="back-btn" onclick="navigateToFeelingsPage('feelingsPage1')">Back</button>
+                    </section>
+
+                    <section id="feelingsPage3" class="page">
+                        <div class="confirmation-box">
+                            <div id="feelings-animation-container">
+                                <span id="feelings-mail-icon">📧</span>
+                                <div id="feelings-message-box"></div>
+                            </div>
+                            <p id="feelings-thank-you-message">Thank you for sharing! Your thoughts have been recorded.</p>
+                            <button class="main-home-btn" onclick="navigateToApp('homeScreen')">🏠 Main Home</button>
+                            <button class="back-to-feelings-btn" onclick="navigateToFeelingsPage('feelingsPage1')">New Entry</button>
+                        </div>
+                    </section>
+
+                    <section id="feelingsViewEntriesPage" class="page">
+                        <h2>Feelings Entries</h2>
+                        <div id="feelingsEntriesList" class="entries-list-container">
+                            <p>Loading entries...</p>
+                        </div>
+                        <button onclick="navigateToFeelingsPage('feelingsPage1')">Back to Feelings Portal</button>
+                    </section>
+                </main>
+                <footer class="portal-footer">
+                    <p>&copy; 2025 For Hetu with Love 💝</p>
+                </footer>
+            </div>
+        </section>
+
+        <!-- Diary Screen -->
+        <section id="diaryScreen" class="screen">
+            <div class="container">
+                <header>
+                    <button class="back-to-home-btn" onclick="navigateToApp('homeScreen')">🏠 Home</button>
+                    <h1><span class="dynamicUserName">User</span>'s Diary</h1>
+                </header>
+                <main>
+                    <section id="diaryCalendarPage" class="page active">
+                        <div class="calendar-header">
+                            <button id="prevMonthBtn">←</button>
+                            <h2 id="currentMonthYear"></h2>
+                            <button id="nextMonthBtn">→</button>
+                        </div>
+                        <div id="calendarGrid" class="calendar-grid"></div>
+                        <div class="diary-actions">
+                            <button onclick="fetchAndDisplayAllDiaryEntries()">View All Entries</button>
+                        </div>
+                    </section>
+
+                    <section id="diaryEntryPage" class="page">
+                        <h2 id="diaryEntryTitle"></h2>
+                        <p class="date-display">Date: <span id="diaryDateDisplay"></span></p>
+                        <div class="notebook">
+                            <textarea id="diaryThoughts" placeholder="Write your diary entry here..."></textarea>
+                            <input type="hidden" id="selectedDate">
+                            <button onclick="submitDiaryEntry()">Save Entry</button>
+                        </div>
+                        <button class="back-btn" onclick="navigateToDiaryPage('diaryCalendarPage')">Back to Calendar</button>
+                    </section>
+
+                    <section id="diaryConfirmationPage" class="page">
+                        <div class="confirmation-box">
+                            <p>Your diary entry has been saved! 📝</p>
+                            <button class="main-home-btn" onclick="navigateToApp('homeScreen')">🏠 Main Home</button>
+                            <button class="back-to-diary-btn" onclick="navigateToDiaryPage('diaryCalendarPage')">Back to Diary</button>
+                        </div>
+                    </section>
+
+                    <section id="diaryViewPage" class="page">
+                        <h2 class="date-display">Date: <span id="viewDiaryDateDisplay"></span></h2>
+                        <div class="notebook view-only">
+                            <p id="viewDiaryThoughts"></p>
+                            <p id="diaryEntryAttribution" class="entry-attribution"></p>
+                        </div>
+                        <div id="diaryViewPageReplySection" class="reply-section-container"></div>
+                        <button class="back-btn" onclick="navigateToDiaryPage('diaryCalendarPage')">Back to Calendar</button>
+                    </section>
+
+                    <section id="allDiaryEntriesPage" class="page">
+                        <h2>All Diary Entries</h2>
+                        <div id="allDiaryEntriesList" class="entries-list-container">
+                            <p>Loading entries...</p>
+                        </div>
+                        <button onclick="navigateToDiaryPage('diaryCalendarPage')">Back to Calendar</button>
+                    </section>
+                </main>
+                <footer class="portal-footer">
+                    <p>&copy; 2025 For Hetu with Love 💝</p>
+                </footer>
+            </div>
+        </section>
+
+        <!-- Dare Game Screen -->
+        <section id="dareGameScreen" class="screen">
+            <div class="container">
+                <header>
+                    <button class="back-to-home-btn" onclick="navigateToApp('homeScreen')">🏠 Home</button>
+                    <h1>Couple's Dare Game 😈</h1>
+                </header>
+                <main>
+                    <div class="dare-display-area">
+                        <p id="dareText">Click the button below to get your first dare!</p>
+                    </div>
+                    <div class="dare-actions">
+                        <button id="nextDareBtn" onclick="generateDare()">Next Dare 🔥</button>
+                    </div>
+                </main>
+                <footer class="portal-footer">
+                    <p>&copy; 2025 For Hetu with Love 💝</p>
+                </footer>
+            </div>
+        </section>
+
+        <!-- Period Tracker Screen -->
+        <section id="periodTrackerScreen" class="screen">
+            <div class="container">
+                <header>
+                    <button class="back-to-home-btn" onclick="navigateToApp('homeScreen')">🏠 Home</button>
+                    <h1>Period Tracker 🌸</h1>
+                </header>
+                <main>
+                    <div class="period-tracker-panel">
+                        <h3>Track Your Cycle</h3>
+                        <div class="period-input-group">
+                            <input type="date" id="periodStartDate" placeholder="Start Date">
+                            <input type="date" id="periodEndDate" placeholder="End Date">
+                        </div>
+                        <div class="mood-selector">
+                            <button onclick="selectMood('😊')" class="mood-btn">😊</button>
+                            <button onclick="selectMood('😢')" class="mood-btn">😢</button>
+                            <button onclick="selectMood('😡')" class="mood-btn">😡</button>
+                            <button onclick="selectMood('🥰')" class="mood-btn">🥰</button>
+                            <button onclick="selectMood('😴')" class="mood-btn">😴</button>
+                        </div>
+                        <button onclick="addPeriodEntry()">Add Period Entry</button>
+                        <div class="period-status" id="periodStatus">
+                            No period data recorded yet.
+                        </div>
+                        <div class="next-period-info" id="nextPeriodInfo"></div>
+                    </div>
+                    <div class="period-tracker-panel">
+                        <h3>Period Calendar</h3>
+                        <div class="calendar-header">
+                            <button onclick="changePeriodMonth(-1)">←</button>
+                            <h2 id="periodMonthYear"></h2>
+                            <button onclick="changePeriodMonth(1)">→</button>
+                        </div>
+                        <div id="periodCalendarGrid" class="calendar-grid"></div>
+                    </div>
+                    <button onclick="navigateToApp('homeScreen')">Back to Home</button>
+                </main>
+                <footer class="portal-footer">
+                    <p>&copy; 2025 For Hetu with Love 💝</p>
+                </footer>
+            </div>
+        </section>
+    </div>
+
+    <!-- Miss You Popup -->
+    <div id="missYouPopup">
+        <p id="missYouMessage"></p>
+        <button onclick="closeMissYouPopup()">Okay ❤️</button>
+    </div>
+    <div id="overlay"></div>
+
+    <script>
+        // ===== GLOBAL CONFIGURATION =====
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxMsH6HVLcv0yGQBKZCdOwdAUi9k_Jv4JeIOotqicQlef0mP_mIADlEVbUuzS8pPsZ27g/exec';
+        
+        let currentUser = '';
+        const SCRIPT_USER_KEY = 'hetuAppCurrentUser';
+        let currentEmotion = '';
+        let calendarCurrentDate = new Date();
+        let periodCalendarDate = new Date();
+        let diaryEntries = {};
+        let periodEntries = [];
+
+        // ===== DARES LIST (Enhanced) =====
+        const coupleDares = [
+            "Give your partner a slow, sensual massage on their neck and shoulders for 5 minutes.",
+            "Whisper three things you find sexiest about your partner into their ear.",
+            "Blindfold your partner and tease them with light touches for 2 minutes.",
+            "Choose a song and give your partner a private slow dance.",
+            "Write a short, steamy compliment and have your partner read it aloud.",
+            "Let your partner slowly remove one item of your upper clothing.",
+            "Describe your favorite memory of a passionate moment in detail.",
+            "Feed your partner a strawberry in the most seductive way.",
+            "Kiss your partner passionately for at least 60 seconds.",
+            "Take turns tracing words of affection on each other's backs.",
+            "Share a secret fantasy you've had about your partner.",
+            "Let your partner choose a spot on your upper body to kiss.",
+            "Remove your top and let your partner admire you for a minute.",
+            "Sit facing each other, knees touching, maintain eye contact for 2 minutes.",
+            "Give your partner a lingering kiss on their collarbone.",
+            "Tell your partner, in a sultry voice, what you want to do later.",
+            "Gently bite your partner's earlobe while whispering something naughty.",
+            "Take turns applying lotion to each other's arms or chest.",
+            "Lie down together and cuddle with soft kisses for 5 minutes.",
+            "Blindfold your partner and kiss them in three different places.",
+            "Slowly lick honey off your partner's finger or lips.",
+            "Recreate your very first kiss with your partner.",
+            "Give your partner a sensual foot massage.",
+            "Both remove your shirts and compliment each other's physique.",
+            "Write 'I want you' with lipstick on your partner's chest.",
+            "Playfully spank your partner (lightly!) and tell them they've been naughty.",
+            "Share a shower together, focusing on washing each other.",
+            "Let your partner choose one item of your clothing to remove.",
+            "Kiss your partner from lips to neck to chest, very slowly.",
+            "Tell your partner a secret desire for your intimacy.",
+            "Blindfold yourself and let your partner guide your hands.",
+            "Take turns giving each other eskimo and butterfly kisses.",
+            "Whisper your partner's name seductively while looking deep into their eyes.",
+            "Set a timer for 3 minutes, communicate only with kisses and caresses.",
+            "Let your partner draw a temporary tattoo on your upper arm.",
+            "Both remove your tops and dance together to a sexy song.",
+            "Give your partner a sensual 'once-over' look and describe what you see.",
+            "Tease your partner by almost kissing them several times.",
+            "Take turns reading a short, erotic poem to each other.",
+            "If you're Chikoo, remove your top. If you're Prath, give Chikoo a back rub.",
+            "If you're Prath, remove your top. If you're Chikoo, kiss Prath's chest.",
+            "Describe your partner's sexiest feature and why you love it.",
+            "Let your partner pick a dare from this list.",
+            "Give your partner a lap dance.",
+            "Role-play: One is a movie star, the other is an adoring fan.",
+            "Take a sexy selfie together (upper body focus).",
+            "Spend 5 minutes only complimenting each other's bodies.",
+            "Kiss each of your partner's fingertips, one by one, very slowly.",
+            "Dare your partner to make you blush with just words.",
+            "Close your eyes and describe your ideal romantic evening together."
+        ];
+
+        let usedDares = [];
+
+        // ===== MISS YOU MESSAGES =====
+        const missYouMessages = [
+            "I love you my chikoo! 🥰",
+            "Sending virtual huggies 🤗 to my darling!",
+            "Sending virtual kissy 😘 to my darling!",
+            "Pratham misses you too! ❤️", 
+            "Thinking of you, always! ✨",
+            "You're the best! 💖"
+        ];
+
+        // ===== USER AUTHENTICATION =====
+        function login(userName) {
+            if (userName === 'Chikoo' || userName === 'Prath') {
+                currentUser = userName;
+                localStorage.setItem(SCRIPT_USER_KEY, currentUser);
+                updateUserDisplay();
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+                document.body.style.alignItems = 'flex-start';
+                navigateToApp('homeScreen');
+                showCustomPopup('Welcome!', `Hello ${currentUser}! 💕 Welcome back to your special app.`, null, () => {});
+                createFloatingEmojis();
+            } else {
+                showCustomPopup('Error', 'Invalid user selection.', null, () => {});
+            }
+        }
+
+        function logout() {
+            currentUser = '';
+            localStorage.removeItem(SCRIPT_USER_KEY);
+            updateUserDisplay();
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.body.style.alignItems = 'center';
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('floatingBg').innerHTML = '';
+        }
+
+        function updateUserDisplay() {
+            const display = document.getElementById('loggedInUserDisplay');
+            if (display) {
+                display.textContent = currentUser ? `User: ${currentUser}` : 'User: Not logged in';
+            }
+            document.querySelectorAll('.dynamicUserName').forEach(el => {
+                el.textContent = currentUser || 'User';
+            });
+        }
+
+        function checkLoginStatus() {
+            const storedUser = localStorage.getItem(SCRIPT_USER_KEY);
+            if (storedUser) {
+                currentUser = storedUser;
+                updateUserDisplay();
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+                document.body.style.alignItems = 'flex-start';
+                navigateToApp('homeScreen');
+                createFloatingEmojis();
+            }
+        }
+
+        // ===== THEME MANAGEMENT =====
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+
+        // ===== FLOATING EMOJI BACKGROUND =====
+        function createFloatingEmojis() {
+            const container = document.getElementById('floatingBg');
+            const emojis = ['💕', '💖', '💗', '💓', '💝', '💘', '💞', '🌸', '🌺', '🌹', '✨', '🌟', '💫', '🌈', '🦋'];
+            
+            for (let i = 0; i < 15; i++) {
+                const emoji = document.createElement('div');
+                emoji.className = 'floating-emoji';
+                emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                emoji.style.left = Math.random() * 100 + '%';
+                emoji.style.top = Math.random() * 100 + '%';
+                emoji.style.animationDelay = Math.random() * 6 + 's';
+                emoji.style.animationDuration = (4 + Math.random() * 4) + 's';
+                container.appendChild(emoji);
+            }
+        }
+
+        // ===== CUSTOM POPUP SYSTEM =====
+        function showCustomPopup(title, message, inputPlaceholder = null, callback) {
+            // Remove existing popups
+            document.querySelectorAll('.custom-popup-overlay').forEach(p => p.remove());
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'custom-popup-overlay';
+            
+            const popup = document.createElement('div');
+            popup.className = 'custom-popup';
+            
+            const titleEl = document.createElement('h3');
+            titleEl.textContent = title;
+            
+            const messageEl = document.createElement('p');
+            messageEl.textContent = message;
+            
+            popup.appendChild(titleEl);
+            popup.appendChild(messageEl);
+            
+            let input = null;
+            if (inputPlaceholder) {
+                input = document.createElement('textarea');
+                input.rows = 3;
+                input.placeholder = inputPlaceholder;
+                input.style.cssText = 'width: 100%; padding: 10px; margin: 10px 0; border: 1px solid var(--border-color); border-radius: 8px;';
+                popup.appendChild(input);
+            }
+            
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.display = 'flex';
+            buttonContainer.style.gap = '10px';
+            buttonContainer.style.justifyContent = 'center';
+            buttonContainer.style.marginTop = '15px';
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.style.background = '#ccc';
+            cancelBtn.onclick = () => {
+                overlay.remove();
+                callback(null);
+            };
+            
+            const confirmBtn = document.createElement('button');
+            confirmBtn.textContent = inputPlaceholder ? 'Submit' : 'OK';
+            confirmBtn.onclick = () => {
+                overlay.remove();
+                callback(input ? input.value : true);
+            };
+            
+            buttonContainer.appendChild(cancelBtn);
+            buttonContainer.appendChild(confirmBtn);
+            popup.appendChild(buttonContainer);
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            if (input) input.focus();
+        }
+
+        // ===== NAVIGATION =====
+        function navigateToApp(screenId) {
+            if (!currentUser && screenId !== 'loginScreen') {
+                showCustomPopup('Session Expired', 'Please log in again.', null, () => logout());
+                return;
+            }
+            
+            document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+            const targetScreen = document.getElementById(screenId);
+            if (targetScreen) {
+                targetScreen.classList.add('active');
+                
+                if (screenId === 'feelingsPortalScreen') {
+                    navigateToFeelingsPage('feelingsPage1');
+                } else if (screenId === 'diaryScreen') {
+                    fetchDiaryEntries().then(() => {
+                        renderCalendar(calendarCurrentDate);
+                        navigateToDiaryPage('diaryCalendarPage');
+                    });
+                } else if (screenId === 'dareGameScreen') {
+                    if (usedDares.length === coupleDares.length) usedDares = [];
+                    document.getElementById('dareText').textContent = "Click the button below to get your first dare!";
+                } else if (screenId === 'periodTrackerScreen') {
+                    loadPeriodTracker();
+                }
+            } else {
+                showCustomPopup('Error', 'Screen not found!', null, () => {});
+            }
+        }
+
+        // ===== FEELINGS PORTAL =====
+        function navigateToFeelingsPage(pageId, emotion = '') {
+            document.querySelectorAll('#feelingsPortalScreen .page').forEach(page => page.classList.remove('active'));
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                if (emotion) currentEmotion = emotion;
+                if (pageId === 'feelingsPage2' && currentEmotion) {
+                    const heading = document.querySelector('#feelingsPage2 h2');
+                    if (heading) heading.textContent = `You selected: ${currentEmotion}. ${currentUser}, please let me know your thoughts.`;
+                }
+            }
+        }
+
+        function submitFeelingsEntry() {
+            if (!currentUser) return;
+            
+            const message = document.getElementById('feelingsMessage').value.trim();
+            if (!currentEmotion || !message) {
+                showCustomPopup('Incomplete', 'Please select an emotion and write your thoughts.', null, () => {});
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('formType', 'feelingsEntry');
+            formData.append('emotion', currentEmotion);
+            formData.append('message', message);
+            formData.append('submittedBy', currentUser);
+
+            const submitBtn = document.getElementById('submitFeelingsBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            fetch(scriptURL, { method: 'POST', body: formData, mode: 'cors' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.getElementById('feelingsMessage').value = '';
+                        navigateToFeelingsPage('feelingsPage3');
+                        showCustomPopup('Success', 'Your feelings have been recorded! 💌', null, () => {});
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch(error => {
+                    showCustomPopup('Error', 'Failed to submit feelings: ' + error.message, null, () => {});
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Entry';
+                });
+        }
+
+        async function fetchAndDisplayFeelingsEntries() {
+            if (!currentUser) return;
+            
+            const listContainer = document.getElementById('feelingsEntriesList');
+            listContainer.innerHTML = '<p>Loading entries...</p>';
+            
+            try {
+                const response = await fetch(`${scriptURL}?action=getFeelingsEntries`, { method: 'GET', mode: 'cors' });
+                const serverData = await response.json();
+                
+                if (serverData.status === 'success' && serverData.data?.length > 0) {
+                    listContainer.innerHTML = '';
+                    const table = document.createElement('table');
+                    table.className = 'feelings-table';
+                    
+                    const thead = table.createTHead();
+                    const headerRow = thead.insertRow();
+                    ['Date & Time', 'Entry By', 'Emotion', 'Message', 'Response'].forEach(text => {
+                        const th = document.createElement('th');
+                        th.textContent = text;
+                        headerRow.appendChild(th);
+                    });
+
+                    const tbody = table.createTBody();
+                    serverData.data.forEach(entry => {
+                        const row = tbody.insertRow();
+                        row.innerHTML = `
+                            <td>${new Date(entry.timestamp).toLocaleString()}</td>
+                            <td><strong>${entry.submittedBy || 'Unknown'}</strong></td>
+                            <td><span class="emotion-tag ${entry.emotion?.toLowerCase()}">${entry.emotion || 'N/A'}</span></td>
+                            <td>${entry.message || 'No message'}</td>
+                            <td id="response-${entry.timestamp}"></td>
+                        `;
+                        
+                        const responseCell = row.cells[4];
+                        if (entry.repliedBy && entry.replyMessage) {
+                            responseCell.innerHTML = `
+                                <div class="reply-display ${entry.repliedBy.toLowerCase()}-reply">
+                                    <p><strong>${entry.repliedBy} Replied:</strong> ${entry.replyMessage}</p>
+                                    <p class="reply-timestamp">Replied: ${new Date(entry.replyTimestamp).toLocaleString()}</p>
+                                </div>
+                            `;
+                        } else {
+                            const replyBtn = document.createElement('button');
+                            replyBtn.textContent = 'Reply 💌';
+                            replyBtn.className = 'reply-btn small-reply-btn';
+                            replyBtn.onclick = () => showCustomPopup(
+                                `Reply to ${entry.submittedBy}`,
+                                `Original message: "${entry.message}"\n\nYour reply:`,
+                                'Write your reply here...',
+                                (replyText) => {
+                                    if (replyText) submitReply('feeling', entry.timestamp, replyText, replyBtn);
+                                }
+                            );
+                            responseCell.appendChild(replyBtn);
+                        }
+                    });
+                    
+                    listContainer.appendChild(table);
+                } else {
+                    listContainer.innerHTML = '<p>No feelings entries yet.</p>';
+                }
+                navigateToFeelingsPage('feelingsViewEntriesPage');
+            } catch (error) {
+                listContainer.innerHTML = `<p>Error loading entries: ${error.message}</p>`;
+            }
+        }
+
+        // ===== DIARY FUNCTIONS =====
+        function navigateToDiaryPage(pageId) {
+            document.querySelectorAll('#diaryScreen .page').forEach(page => page.classList.remove('active'));
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) targetPage.classList.add('active');
+        }
+
+        async function fetchDiaryEntries() {
+            if (!currentUser) return;
+            
+            try {
+                const response = await fetch(`${scriptURL}?action=getDiaryEntries`, { method: 'GET', mode: 'cors' });
+                const data = await response.json();
+                diaryEntries = {};
+                if (data.status === 'success' && data.data) {
+                    data.data.forEach(entry => diaryEntries[entry.date] = entry);
+                }
+            } catch (error) {
+                console.error('Failed to fetch diary entries:', error);
+            }
+        }
+
+        function renderCalendar(date) {
+            const grid = document.getElementById('calendarGrid');
+            const monthYear = document.getElementById('currentMonthYear');
+            
+            grid.innerHTML = '';
+            const month = date.getMonth();
+            const year = date.getFullYear();
+            monthYear.textContent = `${date.toLocaleString('default', { month: 'long' })} ${year}`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day-header';
+                dayHeader.textContent = day;
+                grid.appendChild(dayHeader);
+            });
+
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'calendar-day empty';
+                grid.appendChild(empty);
+            }
+
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day';
+                dayCell.textContent = day;
+                
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                dayCell.dataset.date = dateStr;
+
+                if (dateStr === today.toISOString().split('T')[0]) {
+                    dayCell.classList.add('today');
+                }
+                if (diaryEntries[dateStr]) {
+                    dayCell.classList.add('has-entry');
+                }
+
+                dayCell.addEventListener('click', () => {
+                    if (diaryEntries[dateStr]) {
+                        viewDiaryEntry(dateStr);
+                    } else {
+                        openDiaryEntry(dateStr);
+                    }
+                });
+
+                grid.appendChild(dayCell);
+            }
+        }
+
+        function openDiaryEntry(dateString) {
+            document.getElementById('selectedDate').value = dateString;
+            const dateObj = new Date(dateString);
+            document.getElementById('diaryDateDisplay').textContent = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('diaryEntryTitle').textContent = `Diary for ${dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`;
+            document.getElementById('diaryThoughts').value = '';
+            navigateToDiaryPage('diaryEntryPage');
+        }
+
+        function viewDiaryEntry(dateString) {
+            const entry = diaryEntries[dateString];
+            if (!entry) return;
+
+            const dateObj = new Date(dateString);
+            document.getElementById('viewDiaryDateDisplay').textContent = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('viewDiaryThoughts').textContent = entry.thoughts || 'No thoughts.';
+            document.getElementById('diaryEntryAttribution').innerHTML = `<em>${entry.submittedBy || 'Unknown User'} Made a New entry</em>`;
+
+            const replySection = document.getElementById('diaryViewPageReplySection');
+            replySection.innerHTML = '';
+            
+            if (entry.repliedBy && entry.replyMessage) {
+                replySection.innerHTML = `
+                    <div class="reply-display ${entry.repliedBy.toLowerCase()}-reply">
+                        <p><strong>${entry.repliedBy} Replied:</strong> ${entry.replyMessage}</p>
+                        <p class="reply-timestamp">Replied: ${new Date(entry.replyTimestamp).toLocaleString()}</p>
+                    </div>
+                `;
+            } else {
+                const replyBtn = document.createElement('button');
+                replyBtn.textContent = 'Reply 💌';
+                replyBtn.className = 'reply-btn';
+                replyBtn.onclick = () => showCustomPopup(
+                    `Reply to Diary Entry`,
+                    `Original entry: "${entry.thoughts}"\n\nYour reply:`,
+                    'Write your reply here...',
+                    (replyText) => {
+                        if (replyText) submitReply('diary', dateString, replyText, replyBtn);
+                    }
+                );
+                replySection.appendChild(replyBtn);
+            }
+            
+            navigateToDiaryPage('diaryViewPage');
+        }
+
+        function submitDiaryEntry() {
+            if (!currentUser) return;
+            
+            const thoughts = document.getElementById('diaryThoughts').value.trim();
+            const date = document.getElementById('selectedDate').value;
+            
+            if (!thoughts) {
+                showCustomPopup('Incomplete', 'Please write your thoughts.', null, () => {});
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('formType', 'diaryEntry');
+            formData.append('date', date);
+            formData.append('thoughts', thoughts);
+            formData.append('submittedBy', currentUser);
+
+            const submitBtn = document.querySelector('#diaryEntryPage button[onclick="submitDiaryEntry()"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+
+            fetch(scriptURL, { method: 'POST', body: formData, mode: 'cors' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        return fetchDiaryEntries().then(() => {
+                            renderCalendar(calendarCurrentDate);
+                            navigateToDiaryPage('diaryConfirmationPage');
+                            showCustomPopup('Success', 'Diary entry saved! 📝', null, () => {});
+                        });
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch(error => {
+                    showCustomPopup('Error', 'Failed to save diary: ' + error.message, null, () => {});
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Save Entry';
+                });
+        }
+
+        async function fetchAndDisplayAllDiaryEntries() {
+            if (!currentUser) return;
+            
+            const listContainer = document.getElementById('allDiaryEntriesList');
+            listContainer.innerHTML = '<p>Loading entries...</p>';
+            
+            try {
+                const response = await fetch(`${scriptURL}?action=getDiaryEntries`, { method: 'GET', mode: 'cors' });
+                const serverData = await response.json();
+                
+                if (serverData.status === 'success' && serverData.data?.length > 0) {
+                    listContainer.innerHTML = '';
+                    serverData.data.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(entry => {
+                        const entryDiv = document.createElement('div');
+                        entryDiv.className = 'diary-entry-list-item';
+                        
+                        const dateObj = new Date(entry.date);
+                        const formattedDate = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                        
+                        entryDiv.innerHTML = `
+                            <h3>${formattedDate}</h3>
+                            <div class="entry-meta-info ${entry.submittedBy?.toLowerCase()}-entry">
+                                <strong>${entry.submittedBy || 'Unknown User'}</strong> Made a New entry:
+                            </div>
+                            <p class="entry-content">${entry.thoughts || 'No thoughts.'}</p>
+                        `;
+                        
+                        if (entry.repliedBy && entry.replyMessage) {
+                            entryDiv.innerHTML += `
+                                <div class="reply-display ${entry.repliedBy.toLowerCase()}-reply">
+                                    <p><strong>${entry.repliedBy} Replied:</strong> ${entry.replyMessage}</p>
+                                    <p class="reply-timestamp">Replied: ${new Date(entry.replyTimestamp).toLocaleString()}</p>
+                                </div>
+                            `;
+                        } else {
+                            const replyBtn = document.createElement('button');
+                            replyBtn.textContent = 'Reply 💌';
+                            replyBtn.className = 'reply-btn small-reply-btn';
+                            replyBtn.onclick = () => showCustomPopup(
+                                'Reply to Entry',
+                                `Entry: "${entry.thoughts}"\n\nYour reply:`,
+                                'Write your reply...',
+                                (replyText) => {
+                                    if (replyText) submitReply('diary', entry.date, replyText, replyBtn);
+                                }
+                            );
+                            entryDiv.appendChild(replyBtn);
+                        }
+                        
+                        listContainer.appendChild(entryDiv);
+                    });
+                } else {
+                    listContainer.innerHTML = '<p>No diary entries yet.</p>';
+                }
+                navigateToDiaryPage('allDiaryEntriesPage');
+            } catch (error) {
+                listContainer.innerHTML = `<p>Error loading entries: ${error.message}</p>`;
+            }
+        }
+
+        // ===== REPLY FUNCTION =====
+        async function submitReply(entryType, entryIdentifier, replyMessage, buttonElement) {
+            if (!currentUser || !replyMessage.trim()) {
+                showCustomPopup('Error', 'Reply cannot be empty.', null, () => {});
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('formType', 'replyEntry');
+            formData.append('entryType', entryType);
+            formData.append('entryIdentifier', entryIdentifier);
+            formData.append('replyMessage', replyMessage.trim());
+            formData.append('repliedBy', currentUser);
+
+            if (buttonElement) {
+                buttonElement.disabled = true;
+                buttonElement.textContent = 'Replying...';
+            }
+
+            try {
+                const response = await fetch(scriptURL, { method: 'POST', body: formData, mode: 'cors' });
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    showCustomPopup('Success', 'Reply sent successfully! 💌', null, () => {});
+                    
+                    if (entryType === 'feeling') {
+                        fetchAndDisplayFeelingsEntries();
+                    } else {
+                        await fetchDiaryEntries();
+                        renderCalendar(calendarCurrentDate);
+                        if (document.getElementById('allDiaryEntriesPage').classList.contains('active')) {
+                            fetchAndDisplayAllDiaryEntries();
+                        }
+                    }
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                showCustomPopup('Error', 'Failed to send reply: ' + error.message, null, () => {});
+                if (buttonElement) {
+                    buttonElement.disabled = false;
+                    buttonElement.textContent = 'Reply 💌';
+                }
+            }
+        }
+
+        // ===== DARE GAME =====
+        function generateDare() {
+            if (!currentUser) return;
+            
+            if (usedDares.length === coupleDares.length) {
+                usedDares = [];
+                showCustomPopup('All Dares Complete!', 'You\'ve gone through all dares! Resetting for more fun. 😉', null, () => {});
+            }
+
+            const availableDares = coupleDares.filter(dare => !usedDares.includes(dare));
+            const randomDare = availableDares[Math.floor(Math.random() * availableDares.length)];
+            
+            usedDares.push(randomDare);
+            document.getElementById('dareText').textContent = randomDare;
+        }
+
+        // ===== PERIOD TRACKER =====
+        let selectedMood = null;
+        let periodData = JSON.parse(localStorage.getItem('periodData') || '[]');
+
+        function selectMood(mood) {
+            document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            selectedMood = mood;
+        }
+
+        function addPeriodEntry() {
+            const startDate = document.getElementById('periodStartDate').value;
+            const endDate = document.getElementById('periodEndDate').value || startDate;
+            
+            if (!startDate) {
+                showCustomPopup('Error', 'Please select at least a start date.', null, () => {});
+                return;
+            }
+
+            periodData.push({
+                startDate,
+                endDate,
+                mood: selectedMood,
+                loggedBy: currentUser,
+                timestamp: new Date().toISOString()
+            });
+            
+            localStorage.setItem('periodData', JSON.stringify(periodData));
+            
+            // Clear inputs
+            document.getElementById('periodStartDate').value = '';
+            document.getElementById('periodEndDate').value = '';
+            document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('active'));
+            selectedMood = null;
+            
+            loadPeriodTracker();
+            showCustomPopup('Success', 'Period entry recorded! 🌸', null, () => {});
+        }
+
+        function loadPeriodTracker() {
+            const statusEl = document.getElementById('periodStatus');
+            const nextInfoEl = document.getElementById('nextPeriodInfo');
+            
+            if (periodData.length === 0) {
+                statusEl.textContent = 'No period data recorded yet.';
+                nextInfoEl.textContent = '';
+                renderPeriodCalendar();
+                return;
+            }
+
+            // Sort by start date
+            const sortedData = periodData.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+            const lastPeriod = sortedData[0];
+            const lastStart = new Date(lastPeriod.startDate);
+            const lastEnd = new Date(lastPeriod.endDate);
+            const cycleLength = calculateAverageCycleLength();
+            
+            const nextPeriodDate = new Date(lastStart);
+            nextPeriodDate.setDate(nextPeriodDate.getDate() + cycleLength);
+            
+            const today = new Date();
+            const daysSinceLast = Math.floor((today - lastStart) / (1000 * 60 * 60 * 24));
+            const daysUntilNext = Math.floor((nextPeriodDate - today) / (1000 * 60 * 60 * 24));
+            
+            // Update status
+            if (daysSinceLast <= (lastEnd - lastStart) / (1000 * 60 * 60 * 24)) {
+                statusEl.innerHTML = `🌸 Currently on period (Day ${daysSinceLast + 1})<br>Mood: ${lastPeriod.mood || 'Not recorded'}`;
+            } else if (daysUntilNext <= 7 && daysUntilNext > 0) {
+                statusEl.innerHTML = `⚠️ Period expected in ${daysUntilNext} days`;
+            } else if (daysUntilNext <= 0) {
+                statusEl.textContent = '⚠️ Period might be late';
+            } else {
+                statusEl.textContent = `✅ Period tracked. Next expected in ~${daysUntilNext} days`;
+            }
+            
+            // Next period info
+            nextInfoEl.innerHTML = `
+                <strong>Next Period:</strong> ${nextPeriodDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}<br>
+                <strong>Average Cycle:</strong> ${cycleLength} days<br>
+                <strong>Last Period:</strong> ${lastStart.toLocaleDateString()} - ${lastEnd.toLocaleDateString()}
+            `;
+            
+            renderPeriodCalendar();
+        }
+
+        function calculateAverageCycleLength() {
+            if (periodData.length < 2) return 28;
+            
+            let totalDays = 0;
+            const sortedData = periodData.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+            
+            for (let i = 1; i < sortedData.length; i++) {
+                const daysBetween = (new Date(sortedData[i].startDate) - new Date(sortedData[i-1].startDate)) / (1000 * 60 * 60 * 24);
+                totalDays += daysBetween;
+            }
+            
+            return Math.round(totalDays / (sortedData.length - 1));
+        }
+
+        function changePeriodMonth(direction) {
+            periodCalendarDate.setMonth(periodCalendarDate.getMonth() + direction);
+            renderPeriodCalendar();
+        }
+
+        function renderPeriodCalendar() {
+            const grid = document.getElementById('periodCalendarGrid');
+            const monthYear = document.getElementById('periodMonthYear');
+            
+            if (!grid || !monthYear) return;
+            
+            grid.innerHTML = '';
+            const month = periodCalendarDate.getMonth();
+            const year = periodCalendarDate.getFullYear();
+            monthYear.textContent = `${periodCalendarDate.toLocaleString('default', { month: 'long' })} ${year}`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Day headers
+            ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day-header';
+                dayHeader.textContent = day;
+                grid.appendChild(dayHeader);
+            });
+
+            // Empty cells
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'calendar-day empty';
+                grid.appendChild(empty);
+            }
+
+            // Days
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day';
+                dayCell.textContent = day;
+                
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                // Check if this is a period day
+                const periodEntry = periodData.find(entry => {
+                    const start = new Date(entry.startDate);
+                    const end = new Date(entry.endDate);
+                    const current = new Date(dateStr);
+                    return current >= start && current <= end;
+                });
+                
+                if (periodEntry) {
+                    dayCell.classList.add('period-day');
+                    dayCell.innerHTML += '<span class="period-marker">🌸</span>';
+                }
+                
+                // Predict next periods
+                if (periodData.length > 0) {
+                    const lastPeriod = periodData.sort((a, b) => new Date(b.startDate) - new Date(a.startDate))[0];
+                    const lastStart = new Date(lastPeriod.startDate);
+                    const cycleLength = calculateAverageCycleLength();
+                    const nextPeriodDate = new Date(lastStart);
+                    nextPeriodDate.setDate(nextPeriodDate.getDate() + cycleLength);
+                    
+                    if (Math.abs(new Date(dateStr) - nextPeriodDate) < 3 * 24 * 60 * 60 * 1000) {
+                        dayCell.classList.add('predicted-period');
+                    }
+                }
+                
+                if (dateStr === today.toISOString().split('T')[0]) {
+                    dayCell.classList.add('today');
+                }
+                
+                grid.appendChild(dayCell);
+            }
+        }
+
+        // ===== MISS YOU POPUP =====
+        function showMissYouPopup() {
+            const bunnyFace = document.querySelector('.bunny-button .bunny-face');
+            bunnyFace.classList.add('spinning');
+            
+            setTimeout(() => {
+                bunnyFace.classList.remove('spinning');
+                
+                let message = missYouMessages[Math.floor(Math.random() * missYouMessages.length)];
+                if (currentUser === 'Chikoo' && message.includes('Pratham misses you')) {
+                    // Keep original message
+                } else if (currentUser === 'Prath' && message.includes('Pratham misses you')) {
+                    message = "Chikoo misses you too! ❤️";
+                }
+                
+                document.getElementById('missYouMessage').innerHTML = message;
+                document.getElementById('missYouPopup').style.display = 'block';
+                document.getElementById('overlay').style.display = 'block';
+            }, 2000);
+        }
+
+        function closeMissYouPopup() {
+            document.getElementById('missYouPopup').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // ===== CALENDAR NAVIGATION =====
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTheme();
+            
+            const prevBtn = document.getElementById('prevMonthBtn');
+            const nextBtn = document.getElementById('nextMonthBtn');
+            
+            if (prevBtn) prevBtn.onclick = () => {
+                calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() - 1);
+                fetchDiaryEntries().then(() => renderCalendar(calendarCurrentDate));
+            };
+            
+            if (nextBtn) nextBtn.onclick = () => {
+                calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + 1);
+                fetchDiaryEntries().then(() => renderCalendar(calendarCurrentDate));
+            };
+            
+            checkLoginStatus();
+            
+            // Add floating emojis to login screen
+            if (!currentUser) createFloatingEmojis();
+        });
+    </script>
+</body>
+</html>
