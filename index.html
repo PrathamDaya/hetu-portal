@@ -8,6 +8,7 @@
 </head>
 <body>
     <div class="floating-bg" id="floatingBg"></div>
+
     <button class="theme-toggle" id="themeToggle">🌓</button>
 
     <div id="loginContainer">
@@ -55,7 +56,6 @@
             </footer>
         </section>
 
-        <!-- Feelings Portal Screen -->
         <section id="feelingsPortalScreen" class="screen">
             <div class="container">
                 <header>
@@ -103,7 +103,6 @@
             </div>
         </section>
 
-        <!-- Diary Screen -->
         <section id="diaryScreen" class="screen">
             <div class="container">
                 <header>
@@ -163,7 +162,6 @@
             </div>
         </section>
 
-        <!-- Game Hub Screen -->
         <section id="gameHubScreen" class="screen">
             <div class="container">
                 <header>
@@ -190,7 +188,6 @@
             </div>
         </section>
 
-        <!-- Dare Game Screen -->
         <section id="dareGameScreen" class="screen">
             <div class="container">
                 <header>
@@ -208,7 +205,6 @@
             </div>
         </section>
 
-        <!-- Memory Game Screen -->
         <section id="memoryGameScreen" class="screen">
             <div class="container">
                 <header>
@@ -223,7 +219,6 @@
             </div>
         </section>
 
-        <!-- Catch Game Screen -->
         <section id="catchGameScreen" class="screen">
             <div class="container">
                 <header>
@@ -244,7 +239,6 @@
             </div>
         </section>
 
-        <!-- Slasher Game Screen -->
         <section id="slasherGameScreen" class="screen">
             <div class="container">
                 <header>
@@ -265,7 +259,6 @@
             </div>
         </section>
 
-        <!-- Period Tracker Screen -->
         <section id="periodTrackerScreen" class="screen">
             <div class="container">
                 <header>
@@ -306,7 +299,6 @@
             </div>
         </section>
 
-        <!-- Secret Garden Screen -->
         <section id="gardenScreen" class="screen">
             <div class="container">
                 <header>
@@ -314,32 +306,17 @@
                     <h1>Our Secret Garden 🌺</h1>
                 </header>
                 <main>
-                    <div class="garden-intro">
-                        <p>Every flower is a reason why I love you. Tap an empty spot to plant a new one!</p>
+                    <div class="garden-plot">
+                        <div class="garden-grass-layer"></div>
+                        <div id="gardenFlowersContainer" class="garden-flowers-container">
+                            </div>
                     </div>
-                    <div id="gardenGrid" class="garden-grid"></div>
-                    <div id="gardenButterflies" class="butterflies-container"></div>
+                    <p>Plant a flower to grow your love garden! Each flower holds a reason.</p>
+                    <button onclick="showPlantFlowerPopup()">🌱 Plant a Seed 🌱</button>
                 </main>
             </div>
         </section>
 
-        <!-- Garden Planting Modal -->
-        <div id="gardenPlantModal" class="custom-popup-overlay" style="display: none;">
-            <div class="custom-popup">
-                <h3>Plant a Flower</h3>
-                <p>What do you love about Hetu?</p>
-                <input type="text" id="gardenReasonInput" placeholder="e.g., Her smile lights up my day..." style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid var(--border-color); border-radius: 8px;">
-                <div class="flower-selector">
-                    <button class="flower-btn" data-flower="🌹" onclick="selectFlower('🌹')">🌹 Beauty</button>
-                    <button class="flower-btn" data-flower="🌻" onclick="selectFlower('🌻')">🌻 Joy</button>
-                    <button class="flower-btn" data-flower="🌷" onclick="selectFlower('🌷')">🌷 Grace</button>
-                    <button class="flower-btn" data-flower="🌺" onclick="selectFlower('🌺')">🌺 Passion</button>
-                    <button class="flower-btn" data-flower="🌼" onclick="selectFlower('🌼')">🌼 Cheer</button>
-                </div>
-                <button onclick="plantFlower()" style="margin-top: 15px;">Plant & Grow 💚</button>
-                <button class="back-btn" onclick="closeGardenModal()" style="background: #ccc;">Cancel</button>
-            </div>
-        </div>
     </div>
 
     <div id="missYouPopup">
