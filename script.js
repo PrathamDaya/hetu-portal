@@ -1,906 +1,1257 @@
-// ===== GLOBAL CONFIGURATION =====
-const scriptURL = 'https://script.google.com/macros/s/AKfycbxMsH6HVLcv0yGQBKZCdOwdAUi9k_Jv4JeIOotqicQlef0mP_mIADlEVbUuzS8pPsZ27g/exec';
+/* ===== CSS VARIABLES FOR LIGHT/DARK MODE ===== */
+:root {
+    --bg-primary: linear-gradient(135deg, #fceaff 0%, #fff0f5 100%);
+    --bg-secondary: #ffffff;
+    --text-primary: #5c3b4c;
+    --text-secondary: #a07a8b;
+    --accent-color: #d94a6b;
+    --accent-gradient: linear-gradient(45deg, #ff80a0, #d94a6b);
+    --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    --card-hover-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    --border-color: #ffe0f0;
+    --button-hover: #c03a5b;
+    --chikoo-gradient: linear-gradient(45deg, #ffadc5, #ff80a0);
+    --prath-gradient: linear-gradient(45deg, #7fd2ff, #5ab9ea);
+    --garden-sky: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+    --garden-grass: linear-gradient(to bottom, #90EE90, #2E8B57);
+}
 
-// Application State
-let currentUser = '';
-const SCRIPT_USER_KEY = 'hetuAppCurrentUser';
-let currentEmotion = '';
-let calendarCurrentDate = new Date();
-let periodCalendarDate = new Date();
-let diaryEntries = {};
-let periodData = [];
-let usedDares = [];
-let gardenData = [];
+[data-theme="dark"] {
+    --bg-primary: linear-gradient(135deg, #2d1b2e 0%, #1a121f 100%);
+    --bg-secondary: #2a2a2a;
+    --text-primary: #f5e9f0;
+    --text-secondary: #d0a0b0;
+    --accent-color: #ff6b95;
+    --accent-gradient: linear-gradient(45deg, #ff9eb2, #ff6b95);
+    --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    --card-hover-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+    --border-color: #4a2a3a;
+    --button-hover: #ff5a85;
+    --chikoo-gradient: linear-gradient(45deg, #ff85b3, #ff5a85);
+    --prath-gradient: linear-gradient(45deg, #6ac5ff, #4a9de8);
+    --garden-sky: linear-gradient(to bottom, #191970, #483D8B);
+    --garden-grass: linear-gradient(to bottom, #2F4F4F, #006400);
+}
 
-// ===== GAME STATE VARIABLES =====
-const usePhotoAssets = true;
+/* ===== BASE STYLES ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-// Memory Game Vars
-let memMoves = 0;
-let memLock = false;
-let memHasFlippedCard = false;
-let memFirstCard, memSecondCard;
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    overflow-x: hidden;
+    transition: background 0.5s ease, color 0.3s ease;
+}
 
-// Canvas Game Vars
-let catchGameRunning = false;
-let catchScore = 0;
-let catchLoopId;
+/* ===== FLOATING EMOJI BACKGROUND ===== */
+.floating-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+}
 
-let slasherGameRunning = false;
-let slasherScore = 0;
-let slasherLoopId;
+.floating-emoji {
+    position: absolute;
+    font-size: 2em;
+    opacity: 0.15;
+    animation: float 6s ease-in-out infinite;
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1));
+}
 
-// High Scores
-let gameHighScores = {
-    memory: 100,
-    catch: 0,
-    slasher: 0
-};
+[data-theme="dark"] .floating-emoji {
+    opacity: 0.08;
+}
 
-// ===== DARES LIST =====
-const coupleDares = [
-    "Give your partner a slow, sensual massage on their neck and shoulders for 5 minutes.",
-    "Whisper three things you find sexiest about your partner into their ear.",
-    "Blindfold your partner and tease them with light touches for 2 minutes.",
-    "Choose a song and give your partner a private slow dance.",
-    "Write a short, steamy compliment and have your partner read it aloud.",
-    "Let your partner slowly remove one item of your upper clothing.",
-    "Describe your favorite memory of a passionate moment in detail.",
-    "Feed your partner a strawberry in the most seductive way.",
-    "Kiss your partner passionately for at least 60 seconds.",
-    "Take turns tracing words of affection on each other's backs.",
-    "Share a secret fantasy you've had about your partner.",
-    "Let your partner choose a spot on your upper body to kiss.",
-    "Remove your top and let your partner admire you for a minute.",
-    "Sit facing each other, knees touching, maintain eye contact for 2 minutes.",
-    "Give your partner a lingering kiss on their collarbone.",
-    "Tell your partner, in a sultry voice, what you want to do later.",
-    "Gently bite your partner's earlobe while whispering something naughty.",
-    "Take turns applying lotion to each other's arms or chest.",
-    "Lie down together and cuddle with soft kisses for 5 minutes.",
-    "Blindfold your partner and kiss them in three different places.",
-    "Slowly lick honey off your partner's finger or lips.",
-    "Recreate your very first kiss with your partner.",
-    "Give your partner a sensual foot massage.",
-    "Both remove your shirts and compliment each other's physique.",
-    "Write 'I want you' with lipstick on your partner's chest.",
-    "Playfully spank your partner (lightly!) and tell them they've been naughty.",
-    "Share a shower together, focusing on washing each other.",
-    "Let your partner choose one item of your clothing to remove.",
-    "Kiss your partner from lips to neck to chest, very slowly.",
-    "Tell your partner a secret desire for your intimacy.",
-    "Blindfold yourself and let your partner guide your hands.",
-    "Take turns giving each other eskimo and butterfly kisses.",
-    "Whisper your partner's name seductively while looking deep into their eyes.",
-    "Set a timer for 3 minutes, communicate only with kisses and caresses.",
-    "Let your partner draw a temporary tattoo on your upper arm.",
-    "Both remove your tops and dance together to a sexy song.",
-    "Give your partner a sensual 'once-over' look and describe what you see.",
-    "Tease your partner by almost kissing them several times.",
-    "Take turns reading a short, erotic poem to each other.",
-    "If you're Chikoo, remove your top. If you're Prath, give Chikoo a back rub.",
-    "If you're Prath, remove your top. If you're Chikoo, kiss Prath's chest.",
-    "Describe your partner's sexiest feature and why you love it.",
-    "Let your partner pick a dare from this list.",
-    "Give your partner a lap dance.",
-    "Role-play: One is a movie star, the other is an adoring fan.",
-    "Take a sexy selfie together (upper body focus).",
-    "Spend 5 minutes only complimenting each other's bodies.",
-    "Kiss each of your partner's fingertips, one by one, very slowly.",
-    "Dare your partner to make you blush with just words.",
-    "Close your eyes and describe your ideal romantic evening together."
-];
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-30px) rotate(10deg); }
+}
 
-const missYouMessages = [
-    "I love you my chikoo! 🥰",
-    "Sending virtual huggies 🤗 to my darling!",
-    "Sending virtual kissy 😘 to my darling!",
-    "Pratham misses you too! ❤️", 
-    "Thinking of you, always! ✨",
-    "You're the best! 💖"
-];
+/* ===== THEME TOGGLE BUTTON ===== */
+.theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: transform 0.3s ease;
+    z-index: 100;
+    box-shadow: var(--card-shadow);
+}
 
-const morningMessages = [
-    "Good morning, sunshine! ☀️",
-    "Rise and shine, my love! 🌅",
-    "Morning, beautiful! 💐"
-];
+.theme-toggle:hover {
+    transform: scale(1.1) rotate(15deg);
+}
 
-const nightMessages = [
-    "Sweet dreams, my love 🌙",
-    "Goodnight, my angel 😴",
-    "Sleep tight, darling 🌟"
-];
+/* ===== LOGIN SCREEN ===== */
+#loginContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    animation: fadeInSimple 0.5s ease-out;
+}
 
-let selectedMood = null;
-let selectedFlower = null;
-let gardenSpotToPlant = null;
+@keyframes fadeInSimple {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
 
-// ===== USER AUTHENTICATION =====
-function login(userName) {
-    if (userName === 'Chikoo' || userName === 'Prath') {
-        currentUser = userName;
-        localStorage.setItem(SCRIPT_USER_KEY, currentUser);
-        updateUserDisplay();
-        document.getElementById('loginContainer').style.display = 'none';
-        document.getElementById('appContainer').style.display = 'block';
-        document.body.style.alignItems = 'flex-start';
-        navigateToApp('homeScreen');
-        createFloatingEmojis();
-        loadGardenData();
-    } else {
-        showCustomPopup('Error', 'Invalid user selection.');
+.login-box {
+    background: var(--bg-secondary);
+    padding: 40px;
+    border-radius: 25px;
+    box-shadow: var(--card-shadow);
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+}
+
+.login-box h1 {
+    color: var(--accent-color);
+    margin-bottom: 30px;
+    font-size: clamp(1.8em, 5vw, 2.4em);
+}
+
+.login-options button {
+    display: block;
+    width: 100%;
+    padding: 18px 20px;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Ripple effect */
+.login-options button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.login-options button:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+.chikoo-btn {
+    background: var(--chikoo-gradient);
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 128, 160, 0.3);
+}
+
+.prath-btn {
+    background: var(--prath-gradient);
+    color: white;
+    box-shadow: 0 4px 12px rgba(90, 185, 234, 0.3);
+}
+
+.login-options button:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: var(--card-hover-shadow);
+}
+
+/* ===== APP CONTAINER ===== */
+#appContainer {
+    display: none;
+    width: 100%;
+    max-width: 800px;
+}
+
+.app-header-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    margin-bottom: 15px;
+    box-shadow: var(--card-shadow);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+#loggedInUserDisplay {
+    font-size: 0.95em;
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+.logout-btn {
+    background: #e9edf0;
+    color: #555;
+    border: 1px solid #d5d9dc;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+    background: #d8dde1;
+    transform: scale(1.05);
+}
+
+/* ===== SCREEN MANAGEMENT ===== */
+.screen {
+    display: none;
+    width: 100%;
+    animation: fadeInScale 0.6s ease-out forwards;
+}
+
+.screen.active {
+    display: block;
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ===== MAIN MENU - ENHANCED CARDS ===== */
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 15px;
+}
+
+/* Card Effect */
+.option-box {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 30px 20px;
+    text-align: center;
+    font-size: clamp(1.1em, 4vw, 1.4em);
+    color: var(--accent-color);
+    box-shadow: var(--card-shadow);
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+    flex-direction: column;
+}
+
+/* Shimmer effect */
+.option-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.5s;
+}
+
+.option-box:hover::before {
+    left: 100%;
+}
+
+.option-box:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: var(--card-hover-shadow);
+    filter: brightness(1.1);
+}
+
+/* Blur other cards on hover */
+.options-grid:hover > .option-box:not(:hover) {
+    filter: blur(2px) brightness(0.9);
+    transform: scale(0.95);
+}
+
+.main-option {
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+.bunny-button {
+    background: var(--accent-gradient);
+    color: white;
+    font-size: 1.5em;
+    grid-column: span 2;
+}
+
+.bunny-button .bunny-face {
+    font-size: 3em;
+    animation: bounce 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes bounce {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-10px) rotate(5deg); }
+}
+
+.bunny-button .bunny-face.spinning {
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ===== PORTAL CONTAINERS ===== */
+.container {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    padding: 20px 15px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+}
+
+.container header {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+}
+
+.container header h1 {
+    color: var(--accent-color);
+    font-size: clamp(1.6em, 5vw, 2.2em);
+    margin: 0;
+    padding-top: 40px;
+}
+
+.back-to-home-btn {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    padding: 12px 16px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.back-to-home-btn:hover {
+    background: var(--accent-color);
+    color: white;
+    transform: scale(1.1);
+}
+
+.page {
+    display: none;
+    padding: 15px 0;
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== NOTEBOOK STYLES ===== */
+.notebook {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px auto;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+    max-width: 100%;
+    transition: all 0.3s ease;
+}
+
+.notebook:hover {
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.notebook textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1em;
+    color: var(--text-primary);
+    resize: vertical;
+    margin-bottom: 15px;
+    background: var(--bg-secondary);
+    transition: all 0.3s ease;
+}
+
+.notebook textarea:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 8px var(--accent-color);
+}
+
+/* ===== BUTTON STYLES ===== */
+button {
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    margin: 8px 4px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Shine effect */
+button::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 20px;
+    height: 200%;
+    background: rgba(255,255,255,0.3);
+    transform: rotate(25deg);
+    transition: all 0.6s;
+}
+
+button:hover::after {
+    left: 120%;
+}
+
+button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+button:disabled {
+    background: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.back-btn, .view-all-btn {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.back-btn:hover, .view-all-btn:hover {
+    background: var(--accent-color);
+    color: white;
+}
+
+/* ===== FEELINGS PORTAL ===== */
+#feelingsPortalScreen .option-box {
+    font-size: 1.2em;
+    padding: 25px;
+    margin: 8px auto;
+    max-width: 280px;
+}
+
+#feelingsPortalScreen .option-box.grievance {
+    background: linear-gradient(45deg, #ffcdd2, #ef9a9a);
+    color: #c51162;
+}
+#feelingsPortalScreen .option-box.appreciate {
+    background: linear-gradient(45deg, #c8e6c9, #a5d6a7);
+    color: #1b5e20;
+}
+#feelingsPortalScreen .option-box.sad {
+    background: linear-gradient(45deg, #bbdefb, #90caf9);
+    color: #0d47a1;
+}
+#feelingsPortalScreen .option-box.happy {
+    background: linear-gradient(45deg, #ffecb3, #ffe082);
+    color: #ff6f00;
+}
+
+/* Animation for feelings submission */
+#feelings-animation-container {
+    width: 150px;
+    height: 120px;
+    margin: 0 auto 20px;
+    position: relative;
+}
+
+#feelings-mail-icon {
+    font-size: 3em;
+    color: var(--accent-color);
+    animation: bounceIn 1s forwards;
+}
+
+#feelings-message-box {
+    background: var(--bg-secondary);
+    border: 2px solid var(--accent-color);
+    border-radius: 10px;
+    padding: 8px 12px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    animation: messageBoxRise 1.5s 0.5s forwards;
+    max-width: 140px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0) rotate(0deg); opacity: 0; }
+    50% { transform: scale(1.2) rotate(10deg); opacity: 1; }
+    70% { transform: scale(0.9) rotate(-5deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes messageBoxRise {
+    0% { opacity: 0; transform: translate(-50%, 0%) rotate(-5deg); }
+    100% { opacity: 1; transform: translate(-50%, -120%) rotate(0deg); }
+}
+
+/* ===== BUTTERFLY RELEASE ANIMATION ===== */
+.butterfly-release {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    font-size: 1.5rem;
+    animation: butterflyFlyUp 2s ease-out forwards;
+}
+
+@keyframes butterflyFlyUp {
+    0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
+    25% { transform: translate(10px, -30px) rotate(10deg); }
+    50% { transform: translate(-10px, -60px) rotate(-10deg); }
+    75% { transform: translate(10px, -100px) rotate(10deg); opacity: 0.8; }
+    100% { transform: translateY(-150px) scale(1) rotate(0deg); opacity: 0; }
+}
+
+/* ===== SECRET GARDEN ===== */
+.garden-plot {
+    width: 100%;
+    min-height: 300px;
+    background: var(--garden-sky);
+    position: relative;
+    border-radius: 15px;
+    border: 4px solid #8B4513;
+    overflow: hidden;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 40px; /* Space for grass */
+}
+
+.garden-grass-layer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background: var(--garden-grass);
+    z-index: 1;
+}
+
+.garden-flowers-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-end;
+    width: 100%;
+    padding: 0 10px;
+    z-index: 2;
+    gap: 15px;
+    margin-bottom: 20px; /* Above grass */
+}
+
+.flower-item {
+    font-size: 2.5em;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    user-select: none;
+}
+
+.flower-item:hover {
+    transform: scale(1.3) translateY(-10px);
+}
+
+.flower-item::after {
+    content: '|';
+    color: #006400;
+    font-weight: bold;
+    font-size: 0.6em;
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: -1;
+}
+
+.flower-selector {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+.flower-btn {
+    font-size: 1.8em;
+    padding: 5px 10px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.flower-btn:hover, .flower-btn.selected {
+    background: var(--accent-gradient);
+    transform: scale(1.1);
+}
+
+/* ===== DIARY CALENDAR ===== */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    background: var(--bg-secondary);
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
+}
+
+.calendar-header h2 {
+    color: var(--accent-color);
+    flex: 1;
+}
+
+.calendar-header button {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    padding: 12px 15px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.calendar-header button:hover {
+    background: var(--accent-color);
+    color: white;
+    transform: scale(1.1);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    padding: 15px;
+    background: var(--bg-secondary);
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
+}
+
+.calendar-day {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+.calendar-day::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--accent-gradient);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.calendar-day:hover::before {
+    opacity: 0.2;
+}
+
+.calendar-day:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.calendar-day.today {
+    background: var(--accent-gradient);
+    color: white;
+    font-weight: bold;
+}
+
+.calendar-day.has-entry {
+    background: linear-gradient(45deg, #d94a6b, #ff80a0);
+    color: white;
+}
+
+/* ===== PERIOD TRACKER STYLES ===== */
+.period-day {
+    background: linear-gradient(45deg, #ff6b9d, #ff9e7d) !important;
+    color: white;
+}
+
+.predicted-period {
+    background: linear-gradient(45deg, #ffb6c1, #ffd1dc) !important;
+    color: var(--text-primary);
+}
+
+.period-marker {
+    font-size: 0.5em;
+    position: absolute;
+    bottom: 2px;
+}
+
+.period-tracker-panel {
+    background: var(--bg-secondary);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
+}
+
+.period-input-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 15px 0;
+}
+
+.period-input-group input {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.mood-selector {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 10px 0;
+    flex-wrap: wrap;
+}
+
+.mood-btn {
+    padding: 8px 12px;
+    font-size: 1.5em;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    transition: all 0.3s ease;
+}
+
+.mood-btn:hover {
+    transform: scale(1.2);
+}
+
+.mood-btn.active {
+    background: var(--accent-gradient);
+    transform: scale(1.2);
+}
+
+.period-status, .next-period-info {
+    font-size: 1.1em;
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 10px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+}
+
+/* ===== ENTRIES LIST ===== */
+.entries-list-container {
+    max-height: 400px;
+    overflow-y: auto;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 15px;
+    margin-top: 20px;
+    text-align: left;
+}
+
+/* Custom scrollbar */
+.entries-list-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.entries-list-container::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+}
+
+.entries-list-container::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 10px;
+}
+
+.feelings-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.feelings-table th {
+    background: var(--accent-color);
+    color: white;
+    padding: 12px;
+    position: sticky;
+    top: -1px;
+    z-index: 1;
+}
+
+.feelings-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.2s ease;
+}
+
+.feelings-table tr:hover td {
+    background: rgba(217, 74, 107, 0.05);
+}
+
+.emotion-tag {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+/* ===== REPLY SYSTEM ===== */
+.reply-btn {
+    background: linear-gradient(45deg, #4CAF50, #81C784);
+    color: white;
+    padding: 8px 15px;
+    font-size: 0.9em;
+    border-radius: 20px;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+.reply-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.reply-display {
+    margin-top: 10px;
+    padding: 12px 15px;
+    background: var(--bg-secondary);
+    border-left: 4px solid #4CAF50;
+    border-radius: 6px;
+    font-size: 0.9em;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.reply-display.chikoo-reply {
+    border-left-color: #ff80a0;
+}
+
+.reply-display.prath-reply {
+    border-left-color: #5ab9ea;
+}
+
+.entry-attribution {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    font-style: italic;
+    text-align: left;
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
+
+/* ===== DARE GAME ===== */
+.dare-display-area {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    border: 2px dashed #ffc107;
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px auto;
+    min-height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .dare-display-area {
+    background: linear-gradient(135deg, #3e2723 0%, #5d4037 100%);
+    border-color: #ffab40;
+}
+
+#dareText {
+    font-size: clamp(1.2em, 4vw, 1.5em);
+    color: #856404;
+    font-weight: bold;
+    line-height: 1.5;
+}
+
+[data-theme="dark"] #dareText {
+    color: #ffd54f;
+}
+
+#nextDareBtn {
+    background: linear-gradient(45deg, #ff7e5f, #feb47b);
+    font-size: 1.2em;
+    padding: 15px 30px;
+    transition: all 0.3s ease;
+}
+
+#nextDareBtn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(255, 126, 95, 0.4);
+}
+
+/* ===== CUSTOM MESSAGE POPUP ===== */
+.custom-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    animation: fadeInSimple 0.3s ease;
+}
+
+.custom-popup {
+    background: var(--bg-secondary);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid var(--border-color);
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.7) translateY(20px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.custom-popup h3 {
+    color: var(--accent-color);
+    margin-bottom: 15px;
+    font-size: 1.4em;
+}
+
+.custom-popup p {
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.custom-popup button {
+    padding: 10px 25px;
+    font-size: 1em;
+}
+
+/* ===== FOOTER ===== */
+.main-footer, .portal-footer {
+    text-align: center;
+    margin-top: 30px;
+    color: var(--text-secondary);
+    font-size: 0.85em;
+    padding: 0 15px;
+}
+
+/* ===== MISS YOU POPUP ===== */
+#missYouPopup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg-secondary);
+    border: 2px solid var(--accent-color);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    text-align: center;
+    z-index: 1001;
+    display: none;
+    max-width: 400px;
+    width: 90%;
+    font-size: 1.1em;
+    color: var(--text-primary);
+}
+
+#missYouPopup button {
+    background: var(--accent-gradient);
+    margin-top: 20px;
+}
+
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    display: none;
+    backdrop-filter: blur(3px);
+}
+
+/* ===== MOBILE RESPONSIVENESS ===== */
+@media (max-width: 480px) {
+    .options-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .bunny-button {
+        grid-column: span 1;
+    }
+    
+    .theme-toggle {
+        top: 10px;
+        right: 10px;
+        padding: 10px;
+        font-size: 1em;
+    }
+    
+    .login-box {
+        padding: 25px;
+    }
+    
+    .container {
+        padding: 15px 12px;
     }
 }
 
-function logout() {
-    currentUser = '';
-    localStorage.removeItem(SCRIPT_USER_KEY);
-    updateUserDisplay();
-    document.getElementById('appContainer').style.display = 'none';
-    document.getElementById('loginContainer').style.display = 'flex';
-    document.body.style.alignItems = 'center';
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('floatingBg').innerHTML = '';
-    gardenData = [];
-}
-
-function updateUserDisplay() {
-    const display = document.getElementById('loggedInUserDisplay');
-    if (display) {
-        display.textContent = currentUser ? `User: ${currentUser}` : 'User: Not logged in';
+@media (min-width: 769px) {
+    body {
+        padding: 20px;
     }
-    document.querySelectorAll('.dynamicUserName').forEach(el => {
-        el.textContent = currentUser || 'User';
-    });
-}
-
-function checkLoginStatus() {
-    const storedUser = localStorage.getItem(SCRIPT_USER_KEY);
-    if (storedUser) {
-        currentUser = storedUser;
-        updateUserDisplay();
-        document.getElementById('loginContainer').style.display = 'none';
-        document.getElementById('appContainer').style.display = 'block';
-        document.body.style.alignItems = 'flex-start';
-        navigateToApp('homeScreen');
-    }
-    const storedScores = localStorage.getItem('hetuApp_highscores');
-    if(storedScores) {
-        gameHighScores = JSON.parse(storedScores);
-    }
-    updateHighScoreDisplays();
-}
-
-// ===== THEME MANAGEMENT =====
-function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-}
-
-function loadTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-}
-
-// ===== FLOATING EMOJI BACKGROUND =====
-function createFloatingEmojis() {
-    const container = document.getElementById('floatingBg');
-    const emojis = ['💕', '💖', '💗', '💓', '💝', '💘', '💞', '🌸', '🌺', '🌹', '✨', '🌟', '💫', '🌈', '🦋'];
     
-    for (let i = 0; i < 15; i++) {
-        const emoji = document.createElement('div');
-        emoji.className = 'floating-emoji';
-        emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        emoji.style.left = Math.random() * 100 + '%';
-        emoji.style.top = Math.random() * 100 + '%';
-        emoji.style.animationDelay = Math.random() * 6 + 's';
-        emoji.style.animationDuration = (4 + Math.random() * 4) + 's';
-        container.appendChild(emoji);
+    .container {
+        padding: 30px;
+    }
+    
+    .notebook {
+        max-width: 600px;
     }
 }
 
-// ===== CUSTOM POPUP SYSTEM =====
-function showCustomPopup(title, message, inputPlaceholder = null, callback = null) {
-    document.querySelectorAll('.custom-popup-overlay').forEach(p => p.remove());
-    
-    const overlay = document.createElement('div');
-    overlay.className = 'custom-popup-overlay';
-    
-    const popup = document.createElement('div');
-    popup.className = 'custom-popup';
-    
-    const titleEl = document.createElement('h3');
-    titleEl.textContent = title;
-    
-    const messageEl = document.createElement('p');
-    messageEl.textContent = message;
-    
-    popup.appendChild(titleEl);
-    popup.appendChild(messageEl);
-    
-    let input = null;
-    if (inputPlaceholder) {
-        input = document.createElement('textarea');
-        input.rows = 3;
-        input.placeholder = inputPlaceholder;
-        input.style.cssText = 'width: 100%; padding: 10px; margin: 10px 0; border: 1px solid var(--border-color); border-radius: 8px;';
-        popup.appendChild(input);
+/* ===== GAME ARCADE STYLES ===== */
+
+/* High Score Display on Cards */
+.high-score-display {
+    font-size: 0.7em;
+    color: var(--text-secondary);
+    margin-top: 5px;
+    font-weight: normal;
+    pointer-events: none;
+}
+
+/* Score Boards in Game Header */
+.score-board {
+    font-size: 1.2em;
+    color: var(--accent-color);
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+/* Memory Game Grid */
+.memory-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3x4 grid = 12 cards */
+    gap: 10px;
+    perspective: 1000px;
+    margin: 20px auto;
+    max-width: 350px;
+}
+
+.memory-card {
+    aspect-ratio: 3/4;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: scale(1);
+    transition: transform 0.5s;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.memory-card:active {
+    transform: scale(0.95);
+}
+
+.memory-card.flip {
+    transform: rotateY(180deg);
+}
+
+.front-face, .back-face {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    border-radius: 10px;
+    backface-visibility: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border: 2px solid var(--border-color);
+    background: white;
+}
+
+.front-face {
+    transform: rotateY(180deg); /* Start hidden */
+    overflow: hidden;
+}
+
+.front-face img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.back-face {
+    background: var(--accent-gradient);
+    color: white;
+    font-size: 1.5em;
+}
+
+/* Canvas Game Containers (Slasher & Catch) */
+.game-canvas-container {
+    position: relative;
+    width: 100%; /* Ensure it fills the container */
+    max-width: 100%; /* Prevent overflow */
+    height: 500px; /* Fixed height for the game area */
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 15px;
+    overflow: hidden;
+    border: 2px solid var(--accent-color);
+    /* CRITICAL: Prevents scrolling while playing games on mobile */
+    touch-action: none; 
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: crosshair;
+}
+
+.game-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    z-index: 100;
+    text-align: center;
+    padding: 20px;
+    transition: opacity 0.3s ease;
+}
+
+.game-overlay p {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.game-overlay button {
+    margin-top: 20px;
+    font-size: 1.5em;
+    padding: 10px 30px;
+    z-index: 101;
+}
+
+/* Mobile adjustments for games */
+@media (max-width: 350px) {
+    .memory-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
     }
-    
-    const buttonContainer = document.createElement('div');
-    buttonContainer.style.display = 'flex';
-    buttonContainer.style.gap = '10px';
-    buttonContainer.style.justifyContent = 'center';
-    buttonContainer.style.marginTop = '15px';
-    
-    const cancelBtn = document.createElement('button');
-    cancelBtn.textContent = 'Cancel';
-    cancelBtn.style.background = '#ccc';
-    cancelBtn.onclick = () => {
-        overlay.remove();
-        if (callback) callback(null);
-    };
-    
-    const confirmBtn = document.createElement('button');
-    confirmBtn.textContent = inputPlaceholder ? 'Submit' : 'OK';
-    confirmBtn.onclick = () => {
-        overlay.remove();
-        if (callback) callback(input ? input.value : true);
-    };
-    
-    buttonContainer.appendChild(cancelBtn);
-    buttonContainer.appendChild(confirmBtn);
-    popup.appendChild(buttonContainer);
-    overlay.appendChild(popup);
-    document.body.appendChild(overlay);
-    
-    if (input) input.focus();
-}
-
-// ===== NAVIGATION =====
-function navigateToApp(screenId) {
-    if (!currentUser && screenId !== 'loginScreen') {
-        showCustomPopup('Session Expired', 'Please log in again.');
-        logout();
-        return;
-    }
-    
-    quitGame(false);
-
-    document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
-    const targetScreen = document.getElementById(screenId);
-    if (targetScreen) {
-        targetScreen.classList.add('active');
-        
-        if (screenId === 'feelingsPortalScreen') {
-            navigateToFeelingsPage('feelingsPage1');
-        } else if (screenId === 'diaryScreen') {
-            fetchDiaryEntries().then(() => {
-                renderCalendar(calendarCurrentDate);
-                navigateToDiaryPage('diaryCalendarPage');
-            });
-        } else if (screenId === 'dareGameScreen') {
-            if (usedDares.length === coupleDares.length) usedDares = [];
-            document.getElementById('dareText').textContent = "Click the button below to get your first dare!";
-        } else if (screenId === 'periodTrackerScreen') {
-            loadPeriodTracker();
-        } else if (screenId === 'gameHubScreen') {
-            updateHighScoreDisplays();
-        } else if (screenId === 'gardenScreen') {
-            renderGarden();
-        }
-    } else {
-        showCustomPopup('Error', 'Screen not found!');
-    }
-}
-
-function quitGame(navigate = true) {
-    catchGameRunning = false;
-    slasherGameRunning = false;
-    cancelAnimationFrame(catchLoopId);
-    cancelAnimationFrame(slasherLoopId);
-    if (navigate) navigateToApp('gameHubScreen');
-}
-
-// ===== GAME ARCADE LOGIC =====
-function updateHighScoreDisplays() {
-    document.getElementById('memHighScore').textContent = gameHighScores.memory === 100 ? '-' : gameHighScores.memory + " moves";
-    document.getElementById('catchHighScore').textContent = gameHighScores.catch;
-    document.getElementById('slashHighScore').textContent = gameHighScores.slasher;
-}
-
-function saveHighScores() {
-    localStorage.setItem('hetuApp_highscores', JSON.stringify(gameHighScores));
-    updateHighScoreDisplays();
-}
-
-// --- MEMORY GAME ---
-function startMemoryGame() {
-    navigateToApp('memoryGameScreen');
-    const grid = document.getElementById('memoryGrid');
-    grid.innerHTML = '';
-    memMoves = 0;
-    document.getElementById('memoryMoves').textContent = memMoves;
-    memLock = false;
-    memHasFlippedCard = false;
-
-    const items = usePhotoAssets 
-        ? ['assets/mem1.jpg', 'assets/mem2.jpg', 'assets/mem3.jpg', 'assets/mem4.jpg', 'assets/mem5.jpg', 'assets/mem6.jpg'] 
-        : ['🐼', '🐰', '💖', '🍓', '💋', '🌹'];
-
-    const deck = [...items, ...items].sort(() => 0.5 - Math.random());
-
-    deck.forEach(item => {
-        const card = document.createElement('div');
-        card.classList.add('memory-card');
-        card.dataset.framework = item;
-
-        const frontFace = document.createElement('div');
-        frontFace.classList.add('front-face');
-        if (usePhotoAssets) {
-            const img = document.createElement('img');
-            img.src = item;
-            img.onerror = function() { this.style.display='none'; frontFace.textContent='📸'; };
-            frontFace.appendChild(img);
-        } else {
-            frontFace.textContent = item;
-        }
-
-        const backFace = document.createElement('div');
-        backFace.classList.add('back-face');
-        backFace.textContent = '?';
-
-        card.appendChild(frontFace);
-        card.appendChild(backFace);
-        card.addEventListener('click', flipCard);
-        grid.appendChild(card);
-    });
-}
-
-function flipCard() {
-    if (memLock) return;
-    if (this === memFirstCard) return;
-
-    this.classList.add('flip');
-
-    if (!memHasFlippedCard) {
-        memHasFlippedCard = true;
-        memFirstCard = this;
-        return;
-    }
-
-    memSecondCard = this;
-    checkForMatch();
-}
-
-function checkForMatch() {
-    memMoves++;
-    document.getElementById('memoryMoves').textContent = memMoves;
-
-    let isMatch = memFirstCard.dataset.framework === memSecondCard.dataset.framework;
-    isMatch ? disableCards() : unflipCards();
-}
-
-function disableCards() {
-    memFirstCard.removeEventListener('click', flipCard);
-    memSecondCard.removeEventListener('click', flipCard);
-    resetBoard();
-    
-    if (document.querySelectorAll('.memory-card.flip').length === 12) {
-        setTimeout(() => {
-            if (memMoves < gameHighScores.memory) {
-                gameHighScores.memory = memMoves;
-                saveHighScores();
-                showCustomPopup("New High Score!", `You won in ${memMoves} moves! 🎉`);
-                releaseButterflies();
-            } else {
-                showCustomPopup("You Won!", `Finished in ${memMoves} moves.`);
-                releaseButterflies();
-            }
-        }, 500);
+    .game-canvas-container {
+        height: 400px;
     }
 }
-
-function unflipCards() {
-    memLock = true;
-    setTimeout(() => {
-        memFirstCard.classList.remove('flip');
-        memSecondCard.classList.remove('flip');
-        resetBoard();
-    }, 1000);
-}
-
-function resetBoard() {
-    [memHasFlippedCard, memLock] = [false, false];
-    [memFirstCard, memSecondCard] = [null, null];
-}
-
-// --- CATCH THE HEART GAME ---
-function startCatchGame() {
-    navigateToApp('catchGameScreen');
-    const canvas = document.getElementById('catchGameCanvas');
-    const container = document.getElementById('catchGameCanvasContainer');
-    
-    setTimeout(() => {
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
-        document.getElementById('catchStartOverlay').style.display = 'flex';
-    }, 100);
-}
-
-function initCatchGame() {
-    document.getElementById('catchStartOverlay').style.display = 'none';
-    const canvas = document.getElementById('catchGameCanvas');
-    
-    const container = document.getElementById('catchGameCanvasContainer');
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
-
-    const ctx = canvas.getContext('2d');
-    catchScore = 0;
-    document.getElementById('catchScore').textContent = catchScore;
-    catchGameRunning = true;
-
-    const basket = { 
-        x: canvas.width / 2 - 25, 
-        y: canvas.height - 50, 
-        width: 50, 
-        height: 30 
-    };
-    let items = [];
-    let frame = 0;
-
-    const newCanvas = canvas.cloneNode(true);
-    canvas.parentNode.replaceChild(newCanvas, canvas);
-    const activeCtx = newCanvas.getContext('2d');
-
-    function moveBasket(e) {
-        if (!catchGameRunning) return;
-        e.preventDefault();
-        const rect = newCanvas.getBoundingClientRect();
-        
-        let clientX;
-        if (e.touches && e.touches.length > 0) {
-            clientX = e.touches[0].clientX;
-        } else {
-            clientX = e.clientX;
-        }
-        
-        basket.x = clientX - rect.left - basket.width / 2;
-        
-        if (basket.x < 0) basket.x = 0;
-        if (basket.x + basket.width > newCanvas.width) basket.x = newCanvas.width - basket.width;
-    }
-
-    newCanvas.addEventListener('mousemove', moveBasket);
-    newCanvas.addEventListener('touchmove', moveBasket, { passive: false });
-
-    function loop() {
-        if (!catchGameRunning) return;
-
-        activeCtx.clearRect(0, 0, newCanvas.width, newCanvas.height);
-        activeCtx.fillStyle = '#d94a6b';
-        activeCtx.fillRect(basket.x, basket.y, basket.width, basket.height);
-        activeCtx.fillStyle = 'white';
-        activeCtx.font = '20px Arial';
-        activeCtx.fillText('🗑️', basket.x + 10, basket.y + 22);
-
-        if (frame % 40 === 0) {
-            const isBad = Math.random() < 0.3;
-            items.push({
-                x: Math.random() * (newCanvas.width - 30),
-                y: -30,
-                type: isBad ? '💔' : '💖',
-                speed: 2 + Math.random() * 3
-            });
-        }
-
-        for (let i = items.length - 1; i >= 0; i--) {
-            let item = items[i];
-            item.y += item.speed;
-            activeCtx.font = '30px Arial';
-            activeCtx.fillText(item.type, item.x, item.y);
-
-            if (item.y > basket.y && item.y < basket.y + basket.height &&
-                item.x + 30 > basket.x && item.x < basket.x + basket.width) {
-                
-                if (item.type === '💔') {
-                    endCatchGame();
-                    return;
-                } else {
-                    catchScore++;
-                    document.getElementById('catchScore').textContent = catchScore;
-                    items.splice(i, 1);
-                }
-            } else if (item.y > newCanvas.height) {
-                items.splice(i, 1);
-            }
-        }
-
-        frame++;
-        catchLoopId = requestAnimationFrame(loop);
-    }
-    loop();
-}
-
-function endCatchGame() {
-    catchGameRunning = false;
-    if (catchScore > gameHighScores.catch) {
-        gameHighScores.catch = catchScore;
-        saveHighScores();
-        showCustomPopup('Game Over', `New High Score: ${catchScore}! 🏆`);
-        releaseButterflies();
-    } else {
-        showCustomPopup('Game Over', `Score: ${catchScore}`);
-    }
-    document.getElementById('catchStartOverlay').style.display = 'flex';
-}
-
-// --- LOVE SLASHER GAME ---
-function startSlasherGame() {
-    navigateToApp('slasherGameScreen');
-    const canvas = document.getElementById('slasherCanvas');
-    const container = document.getElementById('slasherCanvasContainer');
-    
-    setTimeout(() => {
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
-        document.getElementById('slasherStartOverlay').style.display = 'flex';
-    }, 100);
-}
-
-function initSlasherGame() {
-    document.getElementById('slasherStartOverlay').style.display = 'none';
-    const canvas = document.getElementById('slasherCanvas');
-    
-    const container = document.getElementById('slasherCanvasContainer');
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
-
-    const ctx = canvas.getContext('2d');
-    slasherScore = 0;
-    document.getElementById('slasherScore').textContent = slasherScore;
-    slasherGameRunning = true;
-
-    let fruits = []; 
-    let particles = []; 
-    let frame = 0;
-    const gravity = 0.15;
-    let trail = [];
-
-    const newCanvas = canvas.cloneNode(true);
-    canvas.parentNode.replaceChild(newCanvas, canvas);
-    const activeCtx = newCanvas.getContext('2d');
-
-    function inputHandler(e) {
-        if (!slasherGameRunning) return;
-        e.preventDefault();
-        
-        const rect = newCanvas.getBoundingClientRect();
-        let clientX, clientY;
-
-        if (e.touches && e.touches.length > 0) {
-            clientX = e.touches[0].clientX;
-            clientY = e.touches[0].clientY;
-        } else {
-            clientX = e.clientX;
-            clientY = e.clientY;
-        }
-
-        const x = clientX - rect.left;
-        const y = clientY - rect.top;
-        
-        trail.push({x, y, life: 10});
-
-        for (let i = fruits.length - 1; i >= 0; i--) {
-            let f = fruits[i];
-            const dist = Math.sqrt((x - f.x) ** 2 + (y - f.y) ** 2);
-            if (dist < f.size) {
-                if (f.type === '💣') {
-                    endSlasherGame();
-                    return;
-                }
-                slasherScore++;
-                document.getElementById('slasherScore').textContent = slasherScore;
-                createParticles(f.x, f.y, f.color);
-                fruits.splice(i, 1);
-            }
-        }
-    }
-
-    newCanvas.addEventListener('mousemove', inputHandler);
-    newCanvas.addEventListener('touchmove', inputHandler, { passive: false });
-
-    function createParticles(x, y, color) {
-        for(let i=0; i<5; i++) {
-            particles.push({
-                x: x, y: y,
-                vx: (Math.random() - 0.5) * 10,
-                vy: (Math.random() - 0.5) * 10,
-                life: 20,
-                color: color
-            });
-        }
-    }
-
-    function loop() {
-        if (!slasherGameRunning) return;
-        activeCtx.clearRect(0, 0, newCanvas.width, newCanvas.height);
-
-        activeCtx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-        activeCtx.lineWidth = 3;
-        activeCtx.beginPath();
-        for (let i = 0; i < trail.length; i++) {
-            let p = trail[i];
-            if (i === 0) activeCtx.moveTo(p.x, p.y);
-            else activeCtx.lineTo(p.x, p.y);
-            p.life--;
-        }
-        activeCtx.stroke();
-        trail = trail.filter(p => p.life > 0);
-
-        if (frame % 50 === 0) {
-            const types = [
-                {emoji: '🍓', color: 'red'}, 
-                {emoji: '🍉', color: 'green'}, 
-                {emoji: '🍑', color: 'orange'}, 
-                {emoji: '💣', color: 'black'}
-            ];
-            const obj = types[Math.floor(Math.random() * types.length)];
-            fruits.push({
-                x: Math.random() * (newCanvas.width - 60) + 30,
-                y: newCanvas.height,
-                vx: (Math.random() - 0.5) * 4,
-                vy: -(Math.random() * 5 + 8),
-                type: obj.emoji,
-                color: obj.color,
-                size: 30
-            });
-        }
-
-        for (let i = fruits.length - 1; i >= 0; i--) {
-            let f = fruits[i];
-            f.x += f.vx;
-            f.y += f.vy;
-            f.vy += gravity;
-
-            activeCtx.font = '40px Arial';
-            activeCtx.fillText(f.type, f.x - 15, f.y + 15);
-
-            if (f.y > newCanvas.height + 50) fruits.splice(i, 1);
-        }
-
-        for (let i = particles.length - 1; i >= 0; i--) {
-            let p = particles[i];
-            p.x += p.vx;
-            p.y += p.vy;
-            p.life--;
-            activeCtx.fillStyle = p.color;
-            activeCtx.beginPath();
-            activeCtx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-            activeCtx.fill();
-            if(p.life <= 0) particles.splice(i, 1);
-        }
-
-        frame++;
-        slasherLoopId = requestAnimationFrame(loop);
-    }
-    loop();
-}
-
-function endSlasherGame() {
-    slasherGameRunning = false;
-    if (slasherScore > gameHighScores.slasher) {
-        gameHighScores.slasher = slasherScore;
-        saveHighScores();
-        showCustomPopup('BOOM! 💥', `New High Score: ${slasherScore}! 🏆`);
-        releaseButterflies();
-    } else {
-        showCustomPopup('BOOM! 💥', `Game Over. Score: ${slasherScore}`);
-    }
-    document.getElementById('slasherStartOverlay').style.display = 'flex';
-}
-
-// ===== FEELINGS PORTAL =====
-function navigateToFeelingsPage(pageId, emotion = '') {
-    document.querySelectorAll('#feelingsPortalScreen .page').forEach(page => page.classList.remove('active'));
-    const targetPage = document.getElementById(pageId);
-    if (targetPage) {
-        targetPage.classList.add('active');
-        if (emotion) currentEmotion = emotion;
-        if (pageId === 'feelingsPage2' && currentEmotion) {
-            const heading = document.querySelector('#feelingsPage2 h2');
-            if (heading) heading.textContent = `You selected: ${currentEmotion}. ${currentUser}, please let me know your thoughts.`;
-        }
-    }
-}
-
-function submitFeelingsEntry() {
-    if (!currentUser) return;
-    
-    const message = document.getElementById('feelingsMessage').value.trim();
-    if (!currentEmotion || !message) {
-        showCustomPopup('Incomplete', 'Please select an emotion and write your thoughts.');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('formType', 'feelingsEntry');
-    formData.append('emotion', currentEmotion);
-    formData.append('message', message);
-    formData.append('submittedBy', currentUser);
-
-    const submitBtn = document.getElementById('submitFeelingsBtn');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Submitting...';
-
-    fetch(scriptURL, { method: 'POST', body: formData, mode: 'cors' })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                document.getElementById('feelingsMessage').value = '';
-                navigateToFeelingsPage('feelingsPage3');
-                showCustomPopup('Success', 'Your feelings have been recorded! 💌');
-                releaseButterflies();
-            } else {
-                throw new Error(data.message);
-            }
-        })
-        .catch(error => {
-            showCustomPopup('Error', 'Failed to submit feelings: ' + error.message);
-        })
-        .finally(() => {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Submit Entry';
-        });
-}
-
-async function fetchAndDisplayFeelingsEntries() {
-    if (!currentUser) return;
-    
-    const listContainer = document.getElementById('feelingsEntriesList');
-    listContainer.innerHTML = '<p>Loading entries...</p>';
-    
-    try {
-        const response = await fetch(`${scriptURL}?action=getFeelingsEntries`, { method: 'GET', mode: 'cors' });
-        const serverData = await response.json();
-        
-        if (serverData.status === 'success' && serverData.data?.length > 0) {
-            listContainer.innerHTML = '';
-            const table = document.createElement('table');
-            table.className = 'feelings-table';
-            
-            const thead = table.createTHead();
-            const headerRow = thead.insertRow();
-            ['Date & Time', 'Entry By', 'Emotion', 'Message', 'Response'].forEach(text => {
-                const th = document.createElement('th');
-                th.textContent = text;
-                headerRow.appendChild(th);
-            });
-
-            const tbody = table.createTBody();
-            serverData.data.forEach(entry => {
-                const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td>${new Date(entry.timestamp).toLocaleString()}</td>
-                    <td><strong>${entry.submittedBy || 'Unknown'}</strong></td>
-                    <td><span class="emotion-tag ${entry.emotion?.toLowerCase()}">${entry.emotion || 'N/A'}</span></td>
-                    <td>${entry.message || 'No message'}</td>
-                    <td id="response-${entry.timestamp}"></td>
-                `;
-                
-                const responseCell = row.cells[4];
-                if (entry.repliedBy && entry.replyMessage) {
-                    responseCell.innerHTML = `
-                        <div class="reply-display ${entry.repliedBy.toLowerCase()}-reply">
-                            <p><strong>${entry.repliedBy} Replied:</strong> ${entry.replyMessage}</p>
-                            <p class="reply-timestamp">Replied: ${new Date(entry.replyTimestamp).toLocaleString()}</p>
-                        </div>
-                    `;
-                } else {
-                    const replyBtn = document.createElement('button');
-                    replyBtn.textContent = 'Reply 💌';
-                    replyBtn.className = 'reply-btn small-reply-btn';
-                    replyBtn.onclick = () => showCustomPopup(
-                        `Reply to ${entry.submittedBy}`,
-                        `Original message: "${entry.message}"\n\nYour reply:`,
-                        'Write your reply here...',
-                        (replyText) => {
-                            if (replyText) submitReply('feeling', entry.timestamp, replyText, replyBtn);
-                        }
-                    );
-                    responseCell.appendChild(replyBtn);
-                }
-            });
-            
-            listContainer.appendChild(table);
-        } else {
-            listContainer.innerHTML = '<p>No feelings entries yet.</p>';
-        }
-        navigateToFeelingsPage('feelingsViewEntriesPage');
-    } catch (error) {
-        listContainer.innerHTML = `<p>Error loading entries: ${error.message}</p>`;
-    }
-}
-
-// ===== DIARY FUNCTIONS =====
-function navigateToDiaryPage(pageId) {
-    document.querySelectorAll('#diaryScreen .page').forEach(page => page.classList.remove('active'));
-    const targetPage = document.getElementById(pageId);
-    if (targetPage) targetPage.classList.add('active');
-}
-
-async function fetchDiaryEntries() {
-    if (!currentUser) return;
-    
-    try {
-        const response = await fetch(`${scriptURL}?action=getDiaryEntries`, { method: 'GET', mode: 'cors' });
-        const data = await response.json();
-        diaryEntries = {};
-        if (data.status === 'success' && data.data) {
-            data.data.forEach(entry => diaryEntries[entry.date] = entry);
-        }
-    } catch (error) {
-        console.error('Failed to fetch diary entries:', error);
-    }
-}
-
-function renderCalendar(date) {
-    const grid = document.getElementById('calendarGrid');
-    const monthYear = document.getElementById('currentMonthYear');
-    
-    if (!grid || !monthYear) return;
-    
-    grid.innerHTML = '';
-    const month = date.getMonth();
-    const year = date.getFullYear();
-    monthYear.textContent = `${date.toLocaleString('default', { month: 'long' })} ${year}`;
-
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
-        const dayHeader = document.createElement('div');
-        dayHeader.className = 'calendar-day-header';
-        dayHeader.textContent = day;
-        grid.appendChild(dayHeader);
-    });
-
-    for (let i = 0; i < firstDay; i++) {
-        const empty = document.createElement('div');
-        empty.className = 'calendar-day empty';
-        grid.appendChild(empty);
-    }
-
-    const today = new Date();
-    for (let day = 1; day <= daysInMonth; day++) {
-        const dayCell = document.createElement('div');
-        dayCell.className = 'calendar-day';
-        dayCell.textContent = day;
-        
-        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        dayCell.dataset.date = dateStr;
-
-        if (dateStr === today.toISOString().split('T')[0]) {
-            dayCell.classList.add('today');
-        }
-        if (diaryEntries[dateStr]) {
-            dayCell.classList.add('has-entry');
-        }
-
-        dayCell.addEventListener('click', () => {
-            if (diaryEntries[dateStr]) {
-                viewDiaryEntry(dateStr);
-            } else {
-                openDiaryEntry(dateStr);
-            }
-        });
-
-        grid.appendChild(dayCell);
-    }
-}
-
-function openDiaryEntry(dateString)
