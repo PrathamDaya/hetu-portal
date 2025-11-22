@@ -10,11 +10,10 @@ let periodCalendarDate = new Date();
 let diaryEntries = {};
 let periodData = [];
 let usedDares = [];
-let gardenData = []; // { id, type, reason, timestamp }
+let gardenData = [];
 
 // ===== GAME STATE VARIABLES =====
-// Toggle this to TRUE if you put photos in 'assets/mem1.jpg' etc.
-const usePhotoAssets = true; 
+const usePhotoAssets = true;
 
 // Memory Game Vars
 let memMoves = 0;
@@ -33,7 +32,7 @@ let slasherLoopId;
 
 // High Scores
 let gameHighScores = {
-    memory: 100, // Lower is better for memory (moves)
+    memory: 100,
     catch: 0,
     slasher: 0
 };
@@ -92,16 +91,30 @@ const coupleDares = [
     "Close your eyes and describe your ideal romantic evening together."
 ];
 
-// Fallback random messages (used if "Random" is selected by logic)
-const randomMissYouMessages = [
-    "You're my favorite notification 📱",
+const missYouMessages = [
+    "I love you my chikoo! 🥰",
     "Sending virtual huggies 🤗 to my darling!",
     "Sending virtual kissy 😘 to my darling!",
+    "Pratham misses you too! ❤️", 
     "Thinking of you, always! ✨",
     "You're the best! 💖"
 ];
 
+const morningMessages = [
+    "Good morning, sunshine! ☀️",
+    "Rise and shine, my love! 🌅",
+    "Morning, beautiful! 💐"
+];
+
+const nightMessages = [
+    "Sweet dreams, my love 🌙",
+    "Goodnight, my angel 😴",
+    "Sleep tight, darling 🌟"
+];
+
 let selectedMood = null;
+let selectedFlower = null;
+let gardenSpotToPlant = null;
 
 // ===== USER AUTHENTICATION =====
 function login(userName) {
@@ -114,6 +127,7 @@ function login(userName) {
         document.body.style.alignItems = 'flex-start';
         navigateToApp('homeScreen');
         createFloatingEmojis();
+        loadGardenData();
     } else {
         showCustomPopup('Error', 'Invalid user selection.');
     }
@@ -128,6 +142,7 @@ function logout() {
     document.body.style.alignItems = 'center';
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('floatingBg').innerHTML = '';
+    gardenData = [];
 }
 
 function updateUserDisplay() {
@@ -150,7 +165,6 @@ function checkLoginStatus() {
         document.body.style.alignItems = 'flex-start';
         navigateToApp('homeScreen');
     }
-    // Load high scores
     const storedScores = localStorage.getItem('hetuApp_highscores');
     if(storedScores) {
         gameHighScores = JSON.parse(storedScores);
@@ -246,37 +260,6 @@ function showCustomPopup(title, message, inputPlaceholder = null, callback = nul
     if (input) input.focus();
 }
 
-// ===== BUTTERFLY RELEASE =====
-function triggerButterflies(sourceElement) {
-    const count = 6;
-    const rect = sourceElement.getBoundingClientRect();
-    const startX = rect.left + rect.width / 2;
-    const startY = rect.top;
-
-    for (let i = 0; i < count; i++) {
-        const butterfly = document.createElement('div');
-        butterfly.className = 'butterfly-release';
-        butterfly.textContent = '🦋';
-        
-        // Randomize starting position slightly
-        const offsetX = (Math.random() - 0.5) * 50;
-        
-        butterfly.style.left = (startX + offsetX) + 'px';
-        butterfly.style.top = startY + 'px';
-        
-        // Randomize animation duration and delay
-        butterfly.style.animationDuration = (1.5 + Math.random()) + 's';
-        butterfly.style.animationDelay = (Math.random() * 0.3) + 's';
-        
-        document.body.appendChild(butterfly);
-        
-        // Cleanup
-        setTimeout(() => {
-            butterfly.remove();
-        }, 3000);
-    }
-}
-
 // ===== NAVIGATION =====
 function navigateToApp(screenId) {
     if (!currentUser && screenId !== 'loginScreen') {
@@ -285,7 +268,6 @@ function navigateToApp(screenId) {
         return;
     }
     
-    // Stop any running games explicitly
     quitGame(false);
 
     document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
@@ -308,7 +290,7 @@ function navigateToApp(screenId) {
         } else if (screenId === 'gameHubScreen') {
             updateHighScoreDisplays();
         } else if (screenId === 'gardenScreen') {
-            loadGarden();
+            renderGarden();
         }
     } else {
         showCustomPopup('Error', 'Screen not found!');
@@ -324,7 +306,6 @@ function quitGame(navigate = true) {
 }
 
 // ===== GAME ARCADE LOGIC =====
-
 function updateHighScoreDisplays() {
     document.getElementById('memHighScore').textContent = gameHighScores.memory === 100 ? '-' : gameHighScores.memory + " moves";
     document.getElementById('catchHighScore').textContent = gameHighScores.catch;
@@ -346,12 +327,10 @@ function startMemoryGame() {
     memLock = false;
     memHasFlippedCard = false;
 
-    // Assets or Emojis
     const items = usePhotoAssets 
         ? ['assets/mem1.jpg', 'assets/mem2.jpg', 'assets/mem3.jpg', 'assets/mem4.jpg', 'assets/mem5.jpg', 'assets/mem6.jpg'] 
         : ['🐼', '🐰', '💖', '🍓', '💋', '🌹'];
 
-    // Duplicate and shuffle
     const deck = [...items, ...items].sort(() => 0.5 - Math.random());
 
     deck.forEach(item => {
@@ -364,7 +343,7 @@ function startMemoryGame() {
         if (usePhotoAssets) {
             const img = document.createElement('img');
             img.src = item;
-            img.onerror = function() { this.style.display='none'; frontFace.textContent='📸'; }; // Fallback if image missing
+            img.onerror = function() { this.style.display='none'; frontFace.textContent='📸'; };
             frontFace.appendChild(img);
         } else {
             frontFace.textContent = item;
@@ -410,15 +389,16 @@ function disableCards() {
     memSecondCard.removeEventListener('click', flipCard);
     resetBoard();
     
-    // Check win
     if (document.querySelectorAll('.memory-card.flip').length === 12) {
         setTimeout(() => {
             if (memMoves < gameHighScores.memory) {
                 gameHighScores.memory = memMoves;
                 saveHighScores();
                 showCustomPopup("New High Score!", `You won in ${memMoves} moves! 🎉`);
+                releaseButterflies();
             } else {
                 showCustomPopup("You Won!", `Finished in ${memMoves} moves.`);
+                releaseButterflies();
             }
         }, 500);
     }
@@ -444,7 +424,6 @@ function startCatchGame() {
     const canvas = document.getElementById('catchGameCanvas');
     const container = document.getElementById('catchGameCanvasContainer');
     
-    // CRITICAL: Force resize only AFTER the element is displayed
     setTimeout(() => {
         canvas.width = container.clientWidth;
         canvas.height = container.clientHeight;
@@ -456,7 +435,6 @@ function initCatchGame() {
     document.getElementById('catchStartOverlay').style.display = 'none';
     const canvas = document.getElementById('catchGameCanvas');
     
-    // Re-confirm size just in case
     const container = document.getElementById('catchGameCanvasContainer');
     canvas.width = container.clientWidth;
     canvas.height = container.clientHeight;
@@ -466,25 +444,22 @@ function initCatchGame() {
     document.getElementById('catchScore').textContent = catchScore;
     catchGameRunning = true;
 
-    // Reset basket position safely
     const basket = { 
         x: canvas.width / 2 - 25, 
         y: canvas.height - 50, 
         width: 50, 
         height: 30 
     };
-    let items = []; // {x, y, type, speed}
+    let items = [];
     let frame = 0;
 
-    // Remove old listeners to prevent stacking (simple approach: clone node)
     const newCanvas = canvas.cloneNode(true);
     canvas.parentNode.replaceChild(newCanvas, canvas);
-    // Get context from the NEW canvas
     const activeCtx = newCanvas.getContext('2d');
 
     function moveBasket(e) {
         if (!catchGameRunning) return;
-        e.preventDefault(); // Stop scrolling
+        e.preventDefault();
         const rect = newCanvas.getBoundingClientRect();
         
         let clientX;
@@ -496,7 +471,6 @@ function initCatchGame() {
         
         basket.x = clientX - rect.left - basket.width / 2;
         
-        // Keep in bounds
         if (basket.x < 0) basket.x = 0;
         if (basket.x + basket.width > newCanvas.width) basket.x = newCanvas.width - basket.width;
     }
@@ -508,15 +482,12 @@ function initCatchGame() {
         if (!catchGameRunning) return;
 
         activeCtx.clearRect(0, 0, newCanvas.width, newCanvas.height);
-
-        // Draw Basket
         activeCtx.fillStyle = '#d94a6b';
         activeCtx.fillRect(basket.x, basket.y, basket.width, basket.height);
         activeCtx.fillStyle = 'white';
         activeCtx.font = '20px Arial';
         activeCtx.fillText('🗑️', basket.x + 10, basket.y + 22);
 
-        // Spawn items
         if (frame % 40 === 0) {
             const isBad = Math.random() < 0.3;
             items.push({
@@ -527,14 +498,12 @@ function initCatchGame() {
             });
         }
 
-        // Update Items
         for (let i = items.length - 1; i >= 0; i--) {
             let item = items[i];
             item.y += item.speed;
             activeCtx.font = '30px Arial';
             activeCtx.fillText(item.type, item.x, item.y);
 
-            // Check collision
             if (item.y > basket.y && item.y < basket.y + basket.height &&
                 item.x + 30 > basket.x && item.x < basket.x + basket.width) {
                 
@@ -563,6 +532,7 @@ function endCatchGame() {
         gameHighScores.catch = catchScore;
         saveHighScores();
         showCustomPopup('Game Over', `New High Score: ${catchScore}! 🏆`);
+        releaseButterflies();
     } else {
         showCustomPopup('Game Over', `Score: ${catchScore}`);
     }
@@ -575,7 +545,6 @@ function startSlasherGame() {
     const canvas = document.getElementById('slasherCanvas');
     const container = document.getElementById('slasherCanvasContainer');
     
-    // CRITICAL: Force resize only AFTER the element is displayed
     setTimeout(() => {
         canvas.width = container.clientWidth;
         canvas.height = container.clientHeight;
@@ -587,7 +556,6 @@ function initSlasherGame() {
     document.getElementById('slasherStartOverlay').style.display = 'none';
     const canvas = document.getElementById('slasherCanvas');
     
-    // Re-confirm size
     const container = document.getElementById('slasherCanvasContainer');
     canvas.width = container.clientWidth;
     canvas.height = container.clientHeight;
@@ -603,14 +571,13 @@ function initSlasherGame() {
     const gravity = 0.15;
     let trail = [];
 
-    // Remove old listeners safely
     const newCanvas = canvas.cloneNode(true);
     canvas.parentNode.replaceChild(newCanvas, canvas);
     const activeCtx = newCanvas.getContext('2d');
 
     function inputHandler(e) {
         if (!slasherGameRunning) return;
-        e.preventDefault(); // Stop scrolling
+        e.preventDefault();
         
         const rect = newCanvas.getBoundingClientRect();
         let clientX, clientY;
@@ -628,7 +595,6 @@ function initSlasherGame() {
         
         trail.push({x, y, life: 10});
 
-        // Check slice
         for (let i = fruits.length - 1; i >= 0; i--) {
             let f = fruits[i];
             const dist = Math.sqrt((x - f.x) ** 2 + (y - f.y) ** 2);
@@ -637,10 +603,8 @@ function initSlasherGame() {
                     endSlasherGame();
                     return;
                 }
-                // Slash success
                 slasherScore++;
                 document.getElementById('slasherScore').textContent = slasherScore;
-                // Add particle effect
                 createParticles(f.x, f.y, f.color);
                 fruits.splice(i, 1);
             }
@@ -666,7 +630,6 @@ function initSlasherGame() {
         if (!slasherGameRunning) return;
         activeCtx.clearRect(0, 0, newCanvas.width, newCanvas.height);
 
-        // Draw Trail
         activeCtx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
         activeCtx.lineWidth = 3;
         activeCtx.beginPath();
@@ -679,7 +642,6 @@ function initSlasherGame() {
         activeCtx.stroke();
         trail = trail.filter(p => p.life > 0);
 
-        // Spawn Fruits
         if (frame % 50 === 0) {
             const types = [
                 {emoji: '🍓', color: 'red'}, 
@@ -699,7 +661,6 @@ function initSlasherGame() {
             });
         }
 
-        // Update Fruits
         for (let i = fruits.length - 1; i >= 0; i--) {
             let f = fruits[i];
             f.x += f.vx;
@@ -712,7 +673,6 @@ function initSlasherGame() {
             if (f.y > newCanvas.height + 50) fruits.splice(i, 1);
         }
 
-        // Update Particles
         for (let i = particles.length - 1; i >= 0; i--) {
             let p = particles[i];
             p.x += p.vx;
@@ -737,12 +697,12 @@ function endSlasherGame() {
         gameHighScores.slasher = slasherScore;
         saveHighScores();
         showCustomPopup('BOOM! 💥', `New High Score: ${slasherScore}! 🏆`);
+        releaseButterflies();
     } else {
         showCustomPopup('BOOM! 💥', `Game Over. Score: ${slasherScore}`);
     }
     document.getElementById('slasherStartOverlay').style.display = 'flex';
 }
-
 
 // ===== FEELINGS PORTAL =====
 function navigateToFeelingsPage(pageId, emotion = '') {
@@ -782,10 +742,9 @@ function submitFeelingsEntry() {
         .then(data => {
             if (data.status === 'success') {
                 document.getElementById('feelingsMessage').value = '';
-                // Trigger Butterflies
-                triggerButterflies(submitBtn);
                 navigateToFeelingsPage('feelingsPage3');
                 showCustomPopup('Success', 'Your feelings have been recorded! 💌');
+                releaseButterflies();
             } else {
                 throw new Error(data.message);
             }
@@ -903,7 +862,6 @@ function renderCalendar(date) {
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // Day headers
     ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
         const dayHeader = document.createElement('div');
         dayHeader.className = 'calendar-day-header';
@@ -911,14 +869,12 @@ function renderCalendar(date) {
         grid.appendChild(dayHeader);
     });
 
-    // Empty cells
     for (let i = 0; i < firstDay; i++) {
         const empty = document.createElement('div');
         empty.className = 'calendar-day empty';
         grid.appendChild(empty);
     }
 
-    // Days
     const today = new Date();
     for (let day = 1; day <= daysInMonth; day++) {
         const dayCell = document.createElement('div');
@@ -947,564 +903,4 @@ function renderCalendar(date) {
     }
 }
 
-function openDiaryEntry(dateString) {
-    document.getElementById('selectedDate').value = dateString;
-    const dateObj = new Date(dateString);
-    document.getElementById('diaryDateDisplay').textContent = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    document.getElementById('diaryEntryTitle').textContent = `Diary for ${dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`;
-    document.getElementById('diaryThoughts').value = '';
-    navigateToDiaryPage('diaryEntryPage');
-}
-
-function viewDiaryEntry(dateString) {
-    const entry = diaryEntries[dateString];
-    if (!entry) return;
-
-    const dateObj = new Date(dateString);
-    document.getElementById('viewDiaryDateDisplay').textContent = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    document.getElementById('viewDiaryThoughts').textContent = entry.thoughts || 'No thoughts.';
-    document.getElementById('diaryEntryAttribution').innerHTML = `<em>${entry.submittedBy || 'Unknown User'} Made a New entry</em>`;
-
-    const replySection = document.getElementById('diaryViewPageReplySection');
-    replySection.innerHTML = '';
-    
-    if (entry.repliedBy && entry.replyMessage) {
-        replySection.innerHTML = `
-            <div class="reply-display ${entry.repliedBy.toLowerCase()}-reply">
-                <p><strong>${entry.repliedBy} Replied:</strong> ${entry.replyMessage}</p>
-                <p class="reply-timestamp">Replied: ${new Date(entry.replyTimestamp).toLocaleString()}</p>
-            </div>
-        `;
-    } else {
-        const replyBtn = document.createElement('button');
-        replyBtn.textContent = 'Reply 💌';
-        replyBtn.className = 'reply-btn';
-        replyBtn.onclick = () => showCustomPopup(
-            `Reply to Diary Entry`,
-            `Original entry: "${entry.thoughts}"\n\nYour reply:`,
-            'Write your reply here...',
-            (replyText) => {
-                if (replyText) submitReply('diary', dateString, replyText, replyBtn);
-            }
-        );
-        replySection.appendChild(replyBtn);
-    }
-    
-    navigateToDiaryPage('diaryViewPage');
-}
-
-function submitDiaryEntry() {
-    if (!currentUser) return;
-    
-    const thoughts = document.getElementById('diaryThoughts').value.trim();
-    const date = document.getElementById('selectedDate').value;
-    
-    if (!thoughts) {
-        showCustomPopup('Incomplete', 'Please write your thoughts.');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('formType', 'diaryEntry');
-    formData.append('date', date);
-    formData.append('thoughts', thoughts);
-    formData.append('submittedBy', currentUser);
-
-    const submitBtn = document.querySelector('#diaryEntryPage button[onclick="submitDiaryEntry()"]');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Saving...';
-
-    fetch(scriptURL, { method: 'POST', body: formData, mode: 'cors' })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                // Trigger Butterflies
-                triggerButterflies(submitBtn);
-                return fetchDiaryEntries().then(() => {
-                    renderCalendar(calendarCurrentDate);
-                    navigateToDiaryPage('diaryConfirmationPage');
-                    showCustomPopup('Success', 'Diary entry saved! 📝');
-                });
-            } else {
-                throw new Error(data.message);
-            }
-        })
-        .catch(error => {
-            showCustomPopup('Error', 'Failed to save diary: ' + error.message);
-        })
-        .finally(() => {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Save Entry';
-        });
-}
-
-async function fetchAndDisplayAllDiaryEntries() {
-    if (!currentUser) return;
-    
-    const listContainer = document.getElementById('allDiaryEntriesList');
-    listContainer.innerHTML = '<p>Loading entries...</p>';
-    
-    try {
-        const response = await fetch(`${scriptURL}?action=getDiaryEntries`, { method: 'GET', mode: 'cors' });
-        const serverData = await response.json();
-        
-        if (serverData.status === 'success' && serverData.data?.length > 0) {
-            listContainer.innerHTML = '';
-            serverData.data.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(entry => {
-                const entryDiv = document.createElement('div');
-                entryDiv.className = 'diary-entry-list-item';
-                
-                const dateObj = new Date(entry.date);
-                const formattedDate = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                
-                entryDiv.innerHTML = `
-                    <h3>${formattedDate}</h3>
-                    <div class="entry-meta-info ${entry.submittedBy?.toLowerCase()}-entry">
-                        <strong>${entry.submittedBy || 'Unknown User'}</strong> Made a New entry:
-                    </div>
-                    <p class="entry-content">${entry.thoughts || 'No thoughts.'}</p>
-                `;
-                
-                if (entry.repliedBy && entry.replyMessage) {
-                    entryDiv.innerHTML += `
-                        <div class="reply-display ${entry.repliedBy.toLowerCase()}-reply">
-                            <p><strong>${entry.repliedBy} Replied:</strong> ${entry.replyMessage}</p>
-                            <p class="reply-timestamp">Replied: ${new Date(entry.replyTimestamp).toLocaleString()}</p>
-                        </div>
-                    `;
-                } else {
-                    const replyBtn = document.createElement('button');
-                    replyBtn.textContent = 'Reply 💌';
-                    replyBtn.className = 'reply-btn small-reply-btn';
-                    replyBtn.onclick = () => showCustomPopup(
-                        'Reply to Entry',
-                        `Entry: "${entry.thoughts}"\n\nYour reply:`,
-                        'Write your reply...',
-                        (replyText) => {
-                            if (replyText) submitReply('diary', entry.date, replyText, replyBtn);
-                        }
-                    );
-                    entryDiv.appendChild(replyBtn);
-                }
-                
-                listContainer.appendChild(entryDiv);
-            });
-        } else {
-            listContainer.innerHTML = '<p>No diary entries yet.</p>';
-        }
-        navigateToDiaryPage('allDiaryEntriesPage');
-    } catch (error) {
-        listContainer.innerHTML = `<p>Error loading entries: ${error.message}</p>`;
-    }
-}
-
-// ===== REPLY FUNCTION =====
-async function submitReply(entryType, entryIdentifier, replyMessage, buttonElement) {
-    if (!currentUser || !replyMessage.trim()) {
-        showCustomPopup('Error', 'Reply cannot be empty.');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('formType', 'replyEntry');
-    formData.append('entryType', entryType);
-    formData.append('entryIdentifier', entryIdentifier);
-    formData.append('replyMessage', replyMessage.trim());
-    formData.append('repliedBy', currentUser);
-
-    if (buttonElement) {
-        buttonElement.disabled = true;
-        buttonElement.textContent = 'Replying...';
-    }
-
-    try {
-        const response = await fetch(scriptURL, { method: 'POST', body: formData, mode: 'cors' });
-        const data = await response.json();
-        
-        if (data.status === 'success') {
-            showCustomPopup('Success', 'Reply sent successfully! 💌');
-            
-            if (entryType === 'feeling') {
-                fetchAndDisplayFeelingsEntries();
-            } else {
-                await fetchDiaryEntries();
-                renderCalendar(calendarCurrentDate);
-                if (document.getElementById('allDiaryEntriesPage').classList.contains('active')) {
-                    fetchAndDisplayAllDiaryEntries();
-                }
-            }
-        } else {
-            throw new Error(data.message);
-        }
-    } catch (error) {
-        showCustomPopup('Error', 'Failed to send reply: ' + error.message);
-        if (buttonElement) {
-            buttonElement.disabled = false;
-            buttonElement.textContent = 'Reply 💌';
-        }
-    }
-}
-
-// ===== DARE GAME =====
-function generateDare() {
-    if (!currentUser) return;
-    
-    if (usedDares.length === coupleDares.length) {
-        usedDares = [];
-        showCustomPopup('All Dares Complete!', 'You\'ve gone through all the dares! Resetting for more fun. 😉');
-    }
-
-    const availableDares = coupleDares.filter(dare => !usedDares.includes(dare));
-    const randomDare = availableDares[Math.floor(Math.random() * availableDares.length)];
-    
-    usedDares.push(randomDare);
-    document.getElementById('dareText').textContent = randomDare;
-}
-
-// ===== SECRET GARDEN =====
-function loadGarden() {
-    gardenData = JSON.parse(localStorage.getItem('hetuApp_garden') || '[]');
-    const container = document.getElementById('gardenFlowersContainer');
-    container.innerHTML = '';
-    
-    gardenData.forEach(flower => {
-        renderFlower(flower);
-    });
-}
-
-function renderFlower(flower) {
-    const container = document.getElementById('gardenFlowersContainer');
-    const el = document.createElement('div');
-    el.className = 'flower-item';
-    el.textContent = flower.type;
-    el.onclick = () => {
-        triggerButterflies(el);
-        showCustomPopup('Reason I Love You', flower.reason);
-    };
-    container.appendChild(el);
-}
-
-function showPlantFlowerPopup() {
-    // Custom UI for planting
-    document.querySelectorAll('.custom-popup-overlay').forEach(p => p.remove());
-    const overlay = document.createElement('div');
-    overlay.className = 'custom-popup-overlay';
-    
-    const popup = document.createElement('div');
-    popup.className = 'custom-popup';
-    popup.innerHTML = '<h3>Plant a Love Flower</h3><p>Select a flower and write a reason why you love her.</p>';
-    
-    // Selector
-    const selector = document.createElement('div');
-    selector.className = 'flower-selector';
-    const flowers = ['🌹', '🌻', '🌷', '🌸', '🌺', '🌼'];
-    let selectedFlower = flowers[0];
-    
-    flowers.forEach(f => {
-        const btn = document.createElement('div');
-        btn.className = 'flower-btn';
-        btn.textContent = f;
-        if (f === selectedFlower) btn.classList.add('selected');
-        
-        btn.onclick = () => {
-            selectedFlower = f;
-            document.querySelectorAll('.flower-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-        };
-        selector.appendChild(btn);
-    });
-    popup.appendChild(selector);
-    
-    // Input
-    const input = document.createElement('textarea');
-    input.rows = 3;
-    input.placeholder = "Reason (e.g., Your smile lights up my world)";
-    input.style.cssText = 'width: 100%; padding: 10px; margin: 10px 0; border: 1px solid var(--border-color); border-radius: 8px;';
-    popup.appendChild(input);
-    
-    // Buttons
-    const btns = document.createElement('div');
-    btns.style.marginTop = '15px';
-    btns.innerHTML = `<button onclick="this.closest('.custom-popup-overlay').remove()">Cancel</button> <button id="confirmPlantBtn">Plant 🌱</button>`;
-    popup.appendChild(btns);
-    
-    overlay.appendChild(popup);
-    document.body.appendChild(overlay);
-    
-    document.getElementById('confirmPlantBtn').onclick = () => {
-        const reason = input.value.trim();
-        if (!reason) {
-            alert("Please write a reason!");
-            return;
-        }
-        
-        const newFlower = {
-            id: Date.now(),
-            type: selectedFlower,
-            reason: reason,
-            timestamp: new Date().toISOString()
-        };
-        
-        gardenData.push(newFlower);
-        localStorage.setItem('hetuApp_garden', JSON.stringify(gardenData));
-        renderFlower(newFlower);
-        overlay.remove();
-        showCustomPopup("Planted!", "Your love garden is growing! 🌺");
-    };
-}
-
-// ===== PERIOD TRACKER =====
-function selectMood(mood) {
-    document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-    selectedMood = mood;
-}
-
-function addPeriodEntry() {
-    const startDate = document.getElementById('periodStartDate').value;
-    const endDate = document.getElementById('periodEndDate').value || startDate;
-    
-    if (!startDate) {
-        showCustomPopup('Error', 'Please select at least a start date.');
-        return;
-    }
-
-    // Load existing data
-    periodData = JSON.parse(localStorage.getItem('periodData') || '[]');
-    
-    periodData.push({
-        startDate,
-        endDate,
-        mood: selectedMood,
-        loggedBy: currentUser,
-        timestamp: new Date().toISOString()
-    });
-    
-    localStorage.setItem('periodData', JSON.stringify(periodData));
-    
-    // Clear inputs
-    document.getElementById('periodStartDate').value = '';
-    document.getElementById('periodEndDate').value = '';
-    document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('active'));
-    selectedMood = null;
-    
-    loadPeriodTracker();
-    showCustomPopup('Success', 'Period entry recorded! 🌸');
-}
-
-function loadPeriodTracker() {
-    // Load data from localStorage
-    periodData = JSON.parse(localStorage.getItem('periodData') || '[]');
-    
-    const statusEl = document.getElementById('periodStatus');
-    const nextInfoEl = document.getElementById('nextPeriodInfo');
-    
-    if (periodData.length === 0) {
-        statusEl.textContent = 'No period data recorded yet.';
-        nextInfoEl.textContent = '';
-        renderPeriodCalendar();
-        return;
-    }
-
-    // Sort by start date
-    const sortedData = periodData.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
-    const lastPeriod = sortedData[0];
-    const lastStart = new Date(lastPeriod.startDate);
-    const lastEnd = new Date(lastPeriod.endDate);
-    const cycleLength = calculateAverageCycleLength();
-    
-    const nextPeriodDate = new Date(lastStart);
-    nextPeriodDate.setDate(nextPeriodDate.getDate() + cycleLength);
-    
-    const today = new Date();
-    const daysSinceLast = Math.floor((today - lastStart) / (1000 * 60 * 60 * 24));
-    const daysUntilNext = Math.floor((nextPeriodDate - today) / (1000 * 60 * 60 * 24));
-    
-    // Update status
-    if (daysSinceLast <= (lastEnd - lastStart) / (1000 * 60 * 60 * 24)) {
-        statusEl.innerHTML = `🌸 Currently on period (Day ${daysSinceLast + 1})<br>Mood: ${lastPeriod.mood || 'Not recorded'}`;
-    } else if (daysUntilNext <= 7 && daysUntilNext > 0) {
-        statusEl.innerHTML = `⚠️ Period expected in ${daysUntilNext} days`;
-    } else if (daysUntilNext <= 0) {
-        statusEl.textContent = '⚠️ Period might be late';
-    } else {
-        statusEl.textContent = `✅ Period tracked. Next expected in ~${daysUntilNext} days`;
-    }
-    
-    // Next period info
-    nextInfoEl.innerHTML = `
-        <strong>Next Period:</strong> ${nextPeriodDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}<br>
-        <strong>Average Cycle:</strong> ${cycleLength} days<br>
-        <strong>Last Period:</strong> ${lastStart.toLocaleDateString()} - ${lastEnd.toLocaleDateString()}
-    `;
-    
-    renderPeriodCalendar();
-}
-
-function calculateAverageCycleLength() {
-    if (periodData.length < 2) return 28;
-    
-    let totalDays = 0;
-    const sortedData = periodData.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
-    
-    for (let i = 1; i < sortedData.length; i++) {
-        const daysBetween = (new Date(sortedData[i].startDate) - new Date(sortedData[i-1].startDate)) / (1000 * 60 * 60 * 24);
-        totalDays += daysBetween;
-    }
-    
-    return Math.round(totalDays / (sortedData.length - 1));
-}
-
-function changePeriodMonth(direction) {
-    periodCalendarDate.setMonth(periodCalendarDate.getMonth() + direction);
-    renderPeriodCalendar();
-}
-
-function renderPeriodCalendar() {
-    const grid = document.getElementById('periodCalendarGrid');
-    const monthYear = document.getElementById('periodMonthYear');
-    
-    if (!grid || !monthYear) return;
-    
-    grid.innerHTML = '';
-    const month = periodCalendarDate.getMonth();
-    const year = periodCalendarDate.getFullYear();
-    monthYear.textContent = `${periodCalendarDate.toLocaleString('default', { month: 'long' })} ${year}`;
-
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    // Day headers
-    ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
-        const dayHeader = document.createElement('div');
-        dayHeader.className = 'calendar-day-header';
-        dayHeader.textContent = day;
-        grid.appendChild(dayHeader);
-    });
-
-    // Empty cells
-    for (let i = 0; i < firstDay; i++) {
-        const empty = document.createElement('div');
-        empty.className = 'calendar-day empty';
-        grid.appendChild(empty);
-    }
-
-    // Days
-    const today = new Date();
-    for (let day = 1; day <= daysInMonth; day++) {
-        const dayCell = document.createElement('div');
-        dayCell.className = 'calendar-day';
-        dayCell.textContent = day;
-        
-        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        
-        // Check if this is a period day
-        const periodEntry = periodData.find(entry => {
-            const start = new Date(entry.startDate);
-            const end = new Date(entry.endDate);
-            const current = new Date(dateStr);
-            return current >= start && current <= end;
-        });
-        
-        if (periodEntry) {
-            dayCell.classList.add('period-day');
-            dayCell.innerHTML += '<span class="period-marker">🌸</span>';
-        }
-        
-        // Predict next periods
-        if (periodData.length > 0) {
-            const lastPeriod = periodData.sort((a, b) => new Date(b.startDate) - new Date(a.startDate))[0];
-            const lastStart = new Date(lastPeriod.startDate);
-            const cycleLength = calculateAverageCycleLength();
-            const nextPeriodDate = new Date(lastStart);
-            nextPeriodDate.setDate(nextPeriodDate.getDate() + cycleLength);
-            
-            if (Math.abs(new Date(dateStr) - nextPeriodDate) < 3 * 24 * 60 * 60 * 1000) {
-                dayCell.classList.add('predicted-period');
-            }
-        }
-        
-        if (dateStr === today.toISOString().split('T')[0]) {
-            dayCell.classList.add('today');
-        }
-        
-        grid.appendChild(dayCell);
-    }
-}
-
-// ===== MISS YOU POPUP =====
-function showMissYouPopup() {
-    const bunnyFace = document.querySelector('.bunny-button .bunny-face');
-    bunnyFace.classList.add('spinning');
-    
-    setTimeout(() => {
-        bunnyFace.classList.remove('spinning');
-        
-        // NEW: Time-based logic
-        const hour = new Date().getHours();
-        let message = "";
-
-        if (hour >= 5 && hour < 12) {
-            message = "Good morning, sunshine! ☀️";
-        } else if (hour >= 22 || hour < 5) {
-            message = "Sweet dreams, my love 🌙";
-        } else {
-            // Random selection
-            message = "You're my favorite notification 📱";
-            
-            // Optional: Mix with old random messages for variety if not strictly Morning/Night
-            // if (Math.random() > 0.5) {
-            //    message = randomMissYouMessages[Math.floor(Math.random() * randomMissYouMessages.length)];
-            // }
-        }
-        
-        document.getElementById('missYouMessage').innerHTML = message;
-        document.getElementById('missYouPopup').style.display = 'block';
-        document.getElementById('overlay').style.display = 'block';
-    }, 2000);
-}
-
-function closeMissYouPopup() {
-    document.getElementById('missYouPopup').style.display = 'none';
-    document.getElementById('overlay').style.display = 'none';
-}
-
-// ===== EVENT LISTENERS =====
-document.addEventListener('DOMContentLoaded', () => {
-    loadTheme();
-    checkLoginStatus();
-    
-    // Add floating emojis to login screen if not logged in
-    if (!currentUser) createFloatingEmojis();
-    
-    // Calendar navigation buttons
-    const prevBtn = document.getElementById('prevMonthBtn');
-    const nextBtn = document.getElementById('nextMonthBtn');
-    
-    if (prevBtn) {
-        prevBtn.onclick = () => {
-            calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() - 1);
-            fetchDiaryEntries().then(() => renderCalendar(calendarCurrentDate));
-        };
-    }
-    
-    if (nextBtn) {
-        nextBtn.onclick = () => {
-            calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + 1);
-            fetchDiaryEntries().then(() => renderCalendar(calendarCurrentDate));
-        };
-    }
-    
-    // Theme toggle
-    document.getElementById('themeToggle').onclick = toggleTheme;
-});
-
-// Prevent zoom on double tap for mobile
-let lastTouchEnd = 0;
-document.addEventListener('touchend', function (event) {
-    const now = (new Date()).getTime();
-    if (now - lastTouchEnd <= 300) {
-        event.preventDefault();
-    }
-    lastTouchEnd = now;
-}, false);
+function openDiaryEntry(dateString)
