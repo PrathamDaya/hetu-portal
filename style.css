@@ -12,6 +12,8 @@
     --button-hover: #c03a5b;
     --chikoo-gradient: linear-gradient(45deg, #ffadc5, #ff80a0);
     --prath-gradient: linear-gradient(45deg, #7fd2ff, #5ab9ea);
+    --garden-sky: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+    --garden-grass: linear-gradient(to bottom, #90EE90, #2E8B57);
 }
 
 [data-theme="dark"] {
@@ -27,6 +29,8 @@
     --button-hover: #ff5a85;
     --chikoo-gradient: linear-gradient(45deg, #ff85b3, #ff5a85);
     --prath-gradient: linear-gradient(45deg, #6ac5ff, #4a9de8);
+    --garden-sky: linear-gradient(to bottom, #191970, #483D8B);
+    --garden-grass: linear-gradient(to bottom, #2F4F4F, #006400);
 }
 
 /* ===== BASE STYLES ===== */
@@ -559,6 +563,106 @@ button:disabled {
     100% { opacity: 1; transform: translate(-50%, -120%) rotate(0deg); }
 }
 
+/* ===== BUTTERFLY RELEASE ANIMATION ===== */
+.butterfly-release {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    font-size: 1.5rem;
+    animation: butterflyFlyUp 2s ease-out forwards;
+}
+
+@keyframes butterflyFlyUp {
+    0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
+    25% { transform: translate(10px, -30px) rotate(10deg); }
+    50% { transform: translate(-10px, -60px) rotate(-10deg); }
+    75% { transform: translate(10px, -100px) rotate(10deg); opacity: 0.8; }
+    100% { transform: translateY(-150px) scale(1) rotate(0deg); opacity: 0; }
+}
+
+/* ===== SECRET GARDEN ===== */
+.garden-plot {
+    width: 100%;
+    min-height: 300px;
+    background: var(--garden-sky);
+    position: relative;
+    border-radius: 15px;
+    border: 4px solid #8B4513;
+    overflow: hidden;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 40px; /* Space for grass */
+}
+
+.garden-grass-layer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background: var(--garden-grass);
+    z-index: 1;
+}
+
+.garden-flowers-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-end;
+    width: 100%;
+    padding: 0 10px;
+    z-index: 2;
+    gap: 15px;
+    margin-bottom: 20px; /* Above grass */
+}
+
+.flower-item {
+    font-size: 2.5em;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    user-select: none;
+}
+
+.flower-item:hover {
+    transform: scale(1.3) translateY(-10px);
+}
+
+.flower-item::after {
+    content: '|';
+    color: #006400;
+    font-weight: bold;
+    font-size: 0.6em;
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: -1;
+}
+
+.flower-selector {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+.flower-btn {
+    font-size: 1.8em;
+    padding: 5px 10px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.flower-btn:hover, .flower-btn.selected {
+    background: var(--accent-gradient);
+    transform: scale(1.1);
+}
+
 /* ===== DIARY CALENDAR ===== */
 .calendar-header {
     display: flex;
@@ -737,6 +841,7 @@ button:disabled {
     text-align: left;
 }
 
+/* Custom scrollbar */
 .entries-list-container::-webkit-scrollbar {
     width: 8px;
 }
@@ -1008,6 +1113,8 @@ button:disabled {
 }
 
 /* ===== GAME ARCADE STYLES ===== */
+
+/* High Score Display on Cards */
 .high-score-display {
     font-size: 0.7em;
     color: var(--text-secondary);
@@ -1016,6 +1123,7 @@ button:disabled {
     pointer-events: none;
 }
 
+/* Score Boards in Game Header */
 .score-board {
     font-size: 1.2em;
     color: var(--accent-color);
@@ -1023,9 +1131,10 @@ button:disabled {
     margin-top: 5px;
 }
 
+/* Memory Game Grid */
 .memory-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr); /* 3x4 grid = 12 cards */
     gap: 10px;
     perspective: 1000px;
     margin: 20px auto;
@@ -1066,7 +1175,7 @@ button:disabled {
 }
 
 .front-face {
-    transform: rotateY(180deg);
+    transform: rotateY(180deg); /* Start hidden */
     overflow: hidden;
 }
 
@@ -1082,17 +1191,19 @@ button:disabled {
     font-size: 1.5em;
 }
 
+/* Canvas Game Containers (Slasher & Catch) */
 .game-canvas-container {
     position: relative;
-    width: 100%;
-    max-width: 100%;
-    height: 500px;
+    width: 100%; /* Ensure it fills the container */
+    max-width: 100%; /* Prevent overflow */
+    height: 500px; /* Fixed height for the game area */
     margin: 0 auto;
     background: rgba(255, 255, 255, 0.5);
     border-radius: 15px;
     overflow: hidden;
     border: 2px solid var(--accent-color);
-    touch-action: none;
+    /* CRITICAL: Prevents scrolling while playing games on mobile */
+    touch-action: none; 
 }
 
 canvas {
@@ -1134,6 +1245,7 @@ canvas {
     z-index: 101;
 }
 
+/* Mobile adjustments for games */
 @media (max-width: 350px) {
     .memory-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -1142,140 +1254,4 @@ canvas {
     .game-canvas-container {
         height: 400px;
     }
-}
-
-/* ===== SECRET GARDEN STYLES ===== */
-.garden-intro {
-    text-align: center;
-    margin-bottom: 20px;
-    color: var(--text-secondary);
-    font-style: italic;
-}
-
-.garden-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 15px;
-    padding: 20px;
-    background: var(--bg-secondary);
-    border-radius: 15px;
-    box-shadow: var(--card-shadow);
-    min-height: 300px;
-    border: 1px solid var(--border-color);
-}
-
-.garden-spot {
-    aspect-ratio: 1;
-    border: 2px dashed var(--border-color);
-    border-radius: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    background: rgba(255, 255, 255, 0.3);
-    position: relative;
-    overflow: hidden;
-}
-
-.garden-spot:hover {
-    border-color: var(--accent-color);
-    transform: scale(1.15);
-    background: rgba(217, 74, 107, 0.1);
-}
-
-.garden-spot.planted {
-    border: none;
-    background: var(--accent-gradient);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
-
-.garden-spot.planted:hover {
-    transform: scale(1.2) rotate(5deg);
-}
-
-.garden-flower {
-    font-size: 2.5em;
-    animation: growFlower 0.8s ease-out forwards;
-    filter: drop-shadow(0 3px 5px rgba(0,0,0,0.2));
-}
-
-@keyframes growFlower {
-    0% { transform: scale(0) rotate(0deg); opacity: 0; }
-    50% { transform: scale(1.3) rotate(-10deg); }
-    100% { transform: scale(1) rotate(0deg); opacity: 1; }
-}
-
-.garden-reason {
-    font-size: 0.7em;
-    margin-top: 5px;
-    color: var(--text-primary);
-    text-align: center;
-    padding: 5px;
-    word-wrap: break-word;
-    max-width: 90px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.butterflies-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 999;
-}
-
-.butterfly {
-    position: absolute;
-    font-size: 1.8em;
-    animation: flyUp 4s ease-out forwards;
-    pointer-events: none;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-}
-
-@keyframes flyUp {
-    0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(-120vh) translateX(40px) rotate(20deg); opacity: 0; }
-}
-
-.flower-selector {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin: 15px 0;
-    flex-wrap: wrap;
-}
-
-.flower-btn {
-    font-size: 2em;
-    padding: 10px;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    border: 2px solid var(--border-color);
-    background: var(--bg-secondary);
-    transition: all 0.3s ease;
-}
-
-.flower-btn:hover {
-    transform: scale(1.2);
-    border-color: var(--accent-color);
-}
-
-.flower-btn.selected {
-    background: var(--accent-gradient);
-    border-color: var(--accent-color);
-    transform: scale(1.2);
-}
-
-/* ===== BUTTERFLY RELEASE ANIMATION ===== */
-.butterfly-release {
-    position: fixed;
-    pointer-events: none;
-    z-index: 1000;
 }
