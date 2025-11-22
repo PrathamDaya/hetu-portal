@@ -7,13 +7,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Floating Emoji Background -->
     <div class="floating-bg" id="floatingBg"></div>
 
-    <!-- Theme Toggle -->
     <button class="theme-toggle" id="themeToggle">🌓</button>
 
-    <!-- Login Screen -->
     <div id="loginContainer">
         <div class="login-box">
             <h1>Welcome! Who are you?</h1>
@@ -24,14 +21,12 @@
         </div>
     </div>
 
-    <!-- Main App Container -->
     <div id="appContainer">
         <div class="app-header-info">
             <span id="loggedInUserDisplay">User: Not logged in</span>
             <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
 
-        <!-- Home Screen -->
         <section id="homeScreen" class="screen active">
             <header class="main-header">
                 <h1>For my Hetu 💖</h1>
@@ -43,11 +38,14 @@
                 <div class="option-box main-option" onclick="navigateToApp('diaryScreen')">
                     📅 Hetu's Diary 📅
                 </div>
-                <div class="option-box main-option" onclick="navigateToApp('gamesScreen')">
-                    🎮 Games & Dares 🎮
+                <div class="option-box main-option" onclick="navigateToApp('gameHubScreen')">
+                    🎮 Love Arcade 🎮
                 </div>
                 <div class="option-box main-option" onclick="navigateToApp('periodTrackerScreen')">
                     🌸 Period Tracker 🌸
+                </div>
+                <div class="option-box main-option" onclick="navigateToApp('gardenScreen')">
+                    🌺 Our Secret Garden 🌺
                 </div>
                 <div class="option-box bunny-button" onclick="showMissYouPopup()">
                     <span class="bunny-face">🐰</span>
@@ -58,7 +56,6 @@
             </footer>
         </section>
 
-        <!-- Feelings Portal -->
         <section id="feelingsPortalScreen" class="screen">
             <div class="container">
                 <header>
@@ -103,13 +100,9 @@
                         <button onclick="navigateToFeelingsPage('feelingsPage1')">Back to Feelings Portal</button>
                     </section>
                 </main>
-                <footer class="portal-footer">
-                    <p>&copy; 2025 For Hetu with Love 💝</p>
-                </footer>
             </div>
         </section>
 
-        <!-- Diary Screen -->
         <section id="diaryScreen" class="screen">
             <div class="container">
                 <header>
@@ -166,112 +159,106 @@
                         <button onclick="navigateToDiaryPage('diaryCalendarPage')">Back to Calendar</button>
                     </section>
                 </main>
-                <footer class="portal-footer">
-                    <p>&copy; 2025 For Hetu with Love 💝</p>
-                </footer>
             </div>
         </section>
 
-        <!-- Games & Dares Screen -->
-        <section id="gamesScreen" class="screen">
+        <section id="gameHubScreen" class="screen">
             <div class="container">
                 <header>
                     <button class="back-to-home-btn" onclick="navigateToApp('homeScreen')">🏠 Home</button>
-                    <h1>Games & Dares 🎮</h1>
+                    <h1>Love Arcade 🕹️</h1>
                 </header>
-                <main>
-                    <!-- Games Selection Menu -->
-                    <section id="gamesMenuPage" class="page active">
-                        <div class="games-grid">
-                            <div class="game-card" onclick="startGame('dare')">
-                                <div class="game-icon">😈</div>
-                                <h3>Couple's Dare</h3>
-                                <p>Spicy dares for two</p>
-                                <div class="high-score">Best: <span id="dareHighScore">0</span> dares</div>
-                            </div>
-                            <div class="game-card" onclick="startGame('memory')">
-                                <div class="game-icon">🧠</div>
-                                <h3>Memory Match</h3>
-                                <p>Match our photos!</p>
-                                <div class="high-score">Best Time: <span id="memoryHighScore">--</span></div>
-                            </div>
-                            <div class="game-card" onclick="startGame('fruit')">
-                                <div class="game-icon">🔪</div>
-                                <h3>Fruit Slash</h3>
-                                <p>Slice the fruits!</p>
-                                <div class="high-score">High Score: <span id="fruitHighScore">0</span></div>
-                            </div>
-                            <div class="game-card" onclick="startGame('hearts')">
-                                <div class="game-icon">💖</div>
-                                <h3>Catch Hearts</h3>
-                                <p>Catch our love!</p>
-                                <div class="high-score">High Score: <span id="heartsHighScore">0</span></div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Dare Game -->
-                    <section id="dareGamePage" class="page">
-                        <div class="dare-display-area">
-                            <p id="dareText">Click the button below to get your first dare!</p>
-                        </div>
-                        <div class="dare-actions">
-                            <button id="nextDareBtn" onclick="generateDare()">Next Dare 🔥</button>
-                            <button class="back-btn" onclick="backToGamesMenu()">Back to Games</button>
-                        </div>
-                        <div class="game-stats">
-                            <p>Dares Completed: <span id="dareCount">0</span> / <span id="totalDares">50</span></p>
-                        </div>
-                    </section>
-
-                    <!-- Memory Game -->
-                    <section id="memoryGamePage" class="page">
-                        <div class="memory-game-header">
-                            <h3>Memory Match</h3>
-                            <div class="memory-stats">
-                                <span>Time: <span id="memoryTimer">0</span>s</span>
-                                <span>Moves: <span id="memoryMoves">0</span></span>
-                            </div>
-                        </div>
-                        <div id="memoryGameGrid" class="memory-grid"></div>
-                        <button class="back-btn" onclick="backToGamesMenu()">Back to Games</button>
-                    </section>
-
-                    <!-- Fruit Slash Game -->
-                    <section id="fruitGamePage" class="page">
-                        <div class="fruit-game-header">
-                            <h3>Fruit Slash</h3>
-                            <div class="fruit-stats">
-                                <span>Score: <span id="fruitScore">0</span></span>
-                                <span>Lives: <span id="fruitLives">❤️❤️❤️</span></span>
-                            </div>
-                        </div>
-                        <canvas id="fruitCanvas" class="game-canvas"></canvas>
-                        <button class="back-btn" onclick="backToGamesMenu()">Back to Games</button>
-                    </section>
-
-                    <!-- Catch Hearts Game -->
-                    <section id="heartsGamePage" class="page">
-                        <div class="hearts-game-header">
-                            <h3>Catch Hearts</h3>
-                            <div class="hearts-stats">
-                                <span>Score: <span id="heartsScore">0</span></span>
-                                <span>Lives: <span id="heartsLives">❤️❤️❤️</span></span>
-                            </div>
-                        </div>
-                        <div id="heartsGameArea" class="hearts-game-area">
-                            <div id="heartsBasket" class="hearts-basket">🧺</div>
-                        </div>
-                        <button class="back-btn" onclick="backToGamesMenu()">Back to Games</button>
-                    </section>
+                <main class="options-grid">
+                    <div class="option-box main-option" onclick="navigateToApp('dareGameScreen')">
+                        😈 Couple's Dare Game 😈
+                    </div>
+                    <div class="option-box main-option" onclick="startMemoryGame()">
+                        🧠 Memory Match 🧠
+                        <div class="high-score-display">Best: <span id="memHighScore">0</span></div>
+                    </div>
+                    <div class="option-box main-option" onclick="startCatchGame()">
+                        💖 Catch the Heart 💖
+                        <div class="high-score-display">Best: <span id="catchHighScore">0</span></div>
+                    </div>
+                    <div class="option-box main-option" onclick="startSlasherGame()">
+                        🍉 Love Slasher 🍉
+                        <div class="high-score-display">Best: <span id="slashHighScore">0</span></div>
+                    </div>
                 </main>
-                <footer class="portal-footer">
-                    <p>&copy; 2025 For Hetu with Love 💝</p>
-                </footer>
             </div>
         </section>
 
-        <!-- Period Tracker Screen -->
+        <section id="dareGameScreen" class="screen">
+            <div class="container">
+                <header>
+                    <button class="back-to-home-btn" onclick="navigateToApp('gameHubScreen')">🕹️ Games</button>
+                    <h1>Couple's Dare Game 😈</h1>
+                </header>
+                <main>
+                    <div class="dare-display-area">
+                        <p id="dareText">Click the button below to get your first dare!</p>
+                    </div>
+                    <div class="dare-actions">
+                        <button id="nextDareBtn" onclick="generateDare()">Next Dare 🔥</button>
+                    </div>
+                </main>
+            </div>
+        </section>
+
+        <section id="memoryGameScreen" class="screen">
+            <div class="container">
+                <header>
+                    <button class="back-to-home-btn" onclick="quitGame()">🕹️ Quit</button>
+                    <h1>Memory Match</h1>
+                    <div class="score-board">Moves: <span id="memoryMoves">0</span></div>
+                </header>
+                <main>
+                    <div class="memory-grid" id="memoryGrid"></div>
+                    <button id="restartMemoryBtn" onclick="startMemoryGame()">Restart Game</button>
+                </main>
+            </div>
+        </section>
+
+        <section id="catchGameScreen" class="screen">
+            <div class="container">
+                <header>
+                    <button class="back-to-home-btn" onclick="quitGame()">🕹️ Quit</button>
+                    <h1>Catch The Heart</h1>
+                    <div class="score-board">Score: <span id="catchScore">0</span></div>
+                </header>
+                <main>
+                    <div id="catchGameCanvasContainer" class="game-canvas-container">
+                        <canvas id="catchGameCanvas"></canvas>
+                        <div id="catchStartOverlay" class="game-overlay">
+                            <p>Tap/Drag basket to catch hearts!</p>
+                            <p>Avoid the broken hearts 💔</p>
+                            <button onclick="initCatchGame()">Start</button>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </section>
+
+        <section id="slasherGameScreen" class="screen">
+            <div class="container">
+                <header>
+                    <button class="back-to-home-btn" onclick="quitGame()">🕹️ Quit</button>
+                    <h1>Love Slasher</h1>
+                    <div class="score-board">Score: <span id="slasherScore">0</span></div>
+                </header>
+                <main>
+                    <div id="slasherCanvasContainer" class="game-canvas-container">
+                        <canvas id="slasherCanvas"></canvas>
+                        <div id="slasherStartOverlay" class="game-overlay">
+                            <p>Swipe/Mouse over fruits to slash!</p>
+                            <p>Don't touch the Bomb 💣</p>
+                            <button onclick="initSlasherGame()">Start</button>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </section>
+
         <section id="periodTrackerScreen" class="screen">
             <div class="container">
                 <header>
@@ -309,14 +296,29 @@
                     </div>
                     <button onclick="navigateToApp('homeScreen')">Back to Home</button>
                 </main>
-                <footer class="portal-footer">
-                    <p>&copy; 2025 For Hetu with Love 💝</p>
-                </footer>
             </div>
         </section>
+
+        <section id="gardenScreen" class="screen">
+            <div class="container">
+                <header>
+                    <button class="back-to-home-btn" onclick="navigateToApp('homeScreen')">🏠 Home</button>
+                    <h1>Our Secret Garden 🌺</h1>
+                </header>
+                <main>
+                    <div class="garden-plot">
+                        <div class="garden-grass-layer"></div>
+                        <div id="gardenFlowersContainer" class="garden-flowers-container">
+                            </div>
+                    </div>
+                    <p>Plant a flower to grow your love garden! Each flower holds a reason.</p>
+                    <button onclick="showPlantFlowerPopup()">🌱 Plant a Seed 🌱</button>
+                </main>
+            </div>
+        </section>
+
     </div>
 
-    <!-- Miss You Popup -->
     <div id="missYouPopup">
         <p id="missYouMessage"></p>
         <button onclick="closeMissYouPopup()">Okay ❤️</button>
